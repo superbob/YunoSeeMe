@@ -1,10 +1,9 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
 
 import logging
 import sys
 import cherrypy
-import geofunctions
+import geods
 from osgeo import gdal
 from gdalconst import GA_ReadOnly
 
@@ -37,7 +36,7 @@ class Profile(object):
             second_long_float = float(second_long)
             i_lat = first_lat_float + ((second_lat_float - first_lat_float) * i) / resolution
             i_long = first_long_float + ((second_long_float - first_long_float) * i) / resolution
-            value = geofunctions.read_ds_value_from_wgs84(ds, i_lat, i_long)
+            value = geods.read_ds_value_from_wgs84(ds, i_lat, i_long)
             elevations.append(value.astype(float))
         return elevations
 

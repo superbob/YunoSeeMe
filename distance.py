@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import geofunctions
+import geometry
 import sys
 
 # 'GPS' coordinates of the first point
@@ -11,6 +11,6 @@ first_long = float(sys.argv[2])  # ex: 1.318601
 second_lat = float(sys.argv[3])  # ex: 43.605867
 second_long = float(sys.argv[4])  # ex: 1.463143
 
-distance = geofunctions.distance_between_wgs84_coordinates(first_lat, first_long, second_lat, second_long)
+distance = geometry.distance_between_wgs84_coordinates(first_lat, first_long, second_lat, second_long)
 
-print("distance is: " + str(distance))
+print 'distance is: %fm' % distance

@@ -5,7 +5,7 @@ import sys
 from osgeo import gdal
 from gdalconst import GA_ReadOnly
 
-import geofunctions
+import geods
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
@@ -46,7 +46,7 @@ elevations = []
 for i in range(definition+1):
     i_lat = first_lat + ((second_lat - first_lat) * i) / definition
     i_long = first_long + ((second_long - first_long) * i) / definition
-    value = geofunctions.read_ds_value_from_wgs84(ds, i_lat, i_long)
+    value = geods.read_ds_value_from_wgs84(ds, i_lat, i_long)
     elevations.append(value)
 
 print "elevation profile between coordinates " + str(first_lat) + ", " + str(first_long) + " and " + str(second_lat)\

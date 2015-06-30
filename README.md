@@ -1,3 +1,7 @@
+This is a collection of tools to compute elevation profiles.
+
+It makes an extensive use of GDAL to handle DEM files to get elevation data from.
+
 Installed native libraries:
 
  * python utilities
@@ -16,10 +20,13 @@ Installed native libraries:
    * libgdal1 -->
    * python-gdal
 
-For MacOS, used (GDAL-Complete) Frameworks provided by http://www.kyngchaos.com/software:frameworks
+For MacOS, used the GDAL Complete Framework provided by http://www.kyngchaos.com/software:frameworks
+
+Copied gdal python binding from /Library/Frameworks/GDAL.framework/... to virtualenv
 
 Installed python modules in virtual env (--no-site-packages):
 
  * numpy
  * gdal
  * cherrypy (web.py didn't work well)
+ * pytest
