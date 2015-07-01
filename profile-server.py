@@ -6,12 +6,21 @@ import cherrypy
 import geods
 from osgeo import gdal
 from gdalconst import GA_ReadOnly
+import ConfigParser
 
-logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
 logger = logging.getLogger('profile-server.py')
 
-ds_filename = sys.argv[1]  # ex: '/path/to/file/EUD_CP-DEMS_3500025000-AA.tif'
+config = ConfigParser.ConfigParser()
+config.read('config.ini')
+ds_filename = config.get('dem', 'location')
+
+# ds file name
+if len(sys.argv) >= 2:
+    ds_filename = sys.argv[1]  # ex: '/path/to/file/EUD_CP-DEMS_3500025000-AA.tif'
+
+logger.debug("using the following DEM: %s", ds_filename)
 
 resolution = 512
 

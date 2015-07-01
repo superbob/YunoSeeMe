@@ -4,6 +4,7 @@ import logging
 import sys
 from osgeo import gdal
 from gdalconst import GA_ReadOnly
+import ConfigParser
 
 import geods
 
@@ -11,10 +12,17 @@ logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(name)s - %(leve
 
 logger = logging.getLogger('elevation.py')
 
-# TODO enforce input arguments
+config = ConfigParser.ConfigParser()
+config.read('config.ini')
+ds_filename = config.get('dem', 'location')
 
 # ds file name
-ds_filename = sys.argv[3]  # ex: '/path/to/file/EUD_CP-DEMS_3500025000-AA.tif'
+if len(sys.argv) >= 4:
+    ds_filename = sys.argv[3]  # ex: '/path/to/file/EUD_CP-DEMS_3500025000-AA.tif'
+
+logger.debug("using the following DEM: %s", ds_filename)
+
+# TODO enforce input arguments
 
 # 'GPS' coordinates to get pixel values for
 input_lat = float(sys.argv[1])  # ex: 43.588276

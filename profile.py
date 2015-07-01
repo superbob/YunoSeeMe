@@ -4,6 +4,7 @@ import logging
 import sys
 from osgeo import gdal
 from gdalconst import GA_ReadOnly
+import ConfigParser
 
 import geods
 
@@ -20,8 +21,15 @@ logger = logging.getLogger('profile.py')
 # maybe need to use some haversine magic to compute angles
 # TODO currently only 'sampling', to be 'exact' a full path should be performed on the actual dataset
 
+config = ConfigParser.ConfigParser()
+config.read('config.ini')
+ds_filename = config.get('dem', 'location')
+
 # ds file name
-ds_filename = sys.argv[5]  # ex: '/path/to/file/EUD_CP-DEMS_3500025000-AA.tif'
+if len(sys.argv) >= 6:
+    ds_filename = sys.argv[5]  # ex: '/path/to/file/EUD_CP-DEMS_3500025000-AA.tif'
+
+logger.debug("using the following DEM: %s", ds_filename)
 
 # 'GPS' coordinates of the first point
 first_lat = float(sys.argv[1])  # ex: 43.588276

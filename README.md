@@ -15,7 +15,7 @@ It needs the following python libraries to work correctly:
  * CherryPy (3.8.0) (to run the web server)
  * pytest (2.7.2) (to run tests)
 
-These libraries can be obtain by pip or easy\_install. They _may_ need two following system packages to work correctly:
+These libraries can be obtained by pip or easy\_install. They _may_ need two following system packages to work correctly:
 
  * GDAL headers (gdal-devel), libs (libgdal1) and python bindings (python-gdal), main binaries can be useful too (gdal)
  * NumPy headers (python-numpy-devel) and libs (python-numpy)
@@ -58,8 +58,21 @@ _http://www.eea.europa.eu/data-and-maps/data/eu-dem#tab-metadata_
 > SRTM was a joint project of NASA, the German and Italian space agencies, and the National Geospatial-Intelligence Agency.
 >
 > It was managed by NASA's Jet Propulsion Laboratory, Pasadena, California, for NASA's Science Mission Directorate, Washington, D.C.
+>
+>SRTM flew aboard the Space Shuttle Endeavour in February 2000, mapping Earth's topography between 56 degrees south and 60 degrees north of the equator
 
 _http://www.jpl.nasa.gov/news/news.php?release=2014-321_
+
+Tests
+-----
+
+Tests use the following DEM: `_dem/N43E001.hgt` from SRTM.
+
+It can be downloaded from the following link: http://dds.cr.usgs.gov/srtm/version2_1/SRTM3/Eurasia/N43E001.hgt.zip
+
+Download, unzip and copy it to the `_dem` folder at the root of the project.
+
+It is also the default DEM when running the tools (specified in the `config.ini` file). It can be changed either in the config file or by command line.
 
 Q&A
 ---
@@ -72,7 +85,7 @@ Q&A
 
 **A:** When I searched for elevation profile dev topics on the Internet, I saw a lot of source code written in python, so I choose it to have more support in case of problems. Moreover it was a good occasion to learn python because I'm a newb.
 
-**Q:** What is that name? (YunoSeeMe)
+**Q:** What is that name?!? (YunoSeeMe)
 
 **A:** It comes from a popular meme (Y U NO...), the letter case is similar to [YunoHost](https://yunohost.org/). It is the question that these tools try to answer => Why don't you se me? In fact the real question answered is: How well do you see me?
 
