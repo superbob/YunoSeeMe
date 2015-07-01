@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import logging
+import os
 import sys
 import cherrypy
 import geods
@@ -10,7 +11,7 @@ import ConfigParser
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
-logger = logging.getLogger('profile-server.py')
+logger = logging.getLogger(os.path.basename(__file__))
 
 config = ConfigParser.ConfigParser()
 config.read('config.ini')

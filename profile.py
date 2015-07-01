@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import logging
+import os
 import sys
 from osgeo import gdal
 from gdalconst import GA_ReadOnly
@@ -10,7 +11,7 @@ import geods
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
-logger = logging.getLogger('profile.py')
+logger = logging.getLogger(os.path.basename(__file__))
 
 # TODO enforce input arguments
 # For curved earth profile, calculate radius :
