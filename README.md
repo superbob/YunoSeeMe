@@ -24,6 +24,8 @@ For MacOS, used the GDAL Complete Framework provided by http://www.kyngchaos.com
 
 Copied gdal python binding from /Library/Frameworks/GDAL.framework/... to virtualenv
 
+cp -R /Library/Frameworks/GDAL.framework/Versions/1.11/Python/2.7/site-packages/* _env/lib/python2.7/site-packages
+
 Installed python modules in virtual env (--no-site-packages):
 
  * numpy
