@@ -30,8 +30,8 @@ logger.debug("using the following DEM: %s", ds_filename)
 # TODO enforce input arguments
 
 # 'GPS' coordinates to get pixel values for
-input_lat = float(sys.argv[1])  # ex: 43.588276
-input_long = float(sys.argv[2])  # ex: 1.318601
+input_lat = float(sys.argv[1])  # ex: 43.561725
+input_long = float(sys.argv[2])  # ex: 1.444796
 
 logger.debug("requesting elevation for wgs84 lat: %f, long: %f", input_lat, input_long)
 

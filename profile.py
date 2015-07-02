@@ -42,12 +42,12 @@ if len(sys.argv) >= 6:
 logger.debug("using the following DEM: %s", ds_filename)
 
 # 'GPS' coordinates of the first point
-first_lat = float(sys.argv[1])  # ex: 43.588276
-first_long = float(sys.argv[2])  # ex: 1.318601
+first_lat = float(sys.argv[1])  # ex: 43.561725
+first_long = float(sys.argv[2])  # ex: 1.444796
 
 # 'GPS' coordinates of the second point
-second_lat = float(sys.argv[3])  # ex: 43.605867
-second_long = float(sys.argv[4])  # ex: 1.463143
+second_lat = float(sys.argv[3])  # ex: 43.671348
+second_long = float(sys.argv[4])  # ex: 1.225619
 
 definition = 512
 
