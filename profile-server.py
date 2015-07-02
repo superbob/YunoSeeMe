@@ -1,5 +1,9 @@
 #!/usr/bin/env python
 
+"""
+    Script that run a web server doing the same as `profile.py` but in a RESTful webservice fashion.
+"""
+
 import logging
 import os
 import sys

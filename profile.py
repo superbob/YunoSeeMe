@@ -1,25 +1,34 @@
 #!/usr/bin/env python
 
+"""
+    Script that computes a profile between two points referenced by their WGS 84 latitude and longitude.
+
+    The profile consists in a list of points equally distributed with their:
+
+      * latitude
+      * longitude
+      * distance from the first point
+      * elevation
+      * overhead of the curvature of the earth
+"""
+
 import logging
 import os
 import sys
 from osgeo import gdal
 from gdalconst import GA_ReadOnly
 import ConfigParser
+import math
 
 import geods
+import geometry
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
 logger = logging.getLogger(os.path.basename(__file__))
 
 # TODO enforce input arguments
-# For curved earth profile, calculate radius :
-# http://en.wikipedia.org/wiki/Earth_radius#Geocentric_radius
-# and then compute line of sight as if it was on a fixed radius sphere
-# quadratic mean radius
-# http://en.wikipedia.org/wiki/Earth_radius#Rectifying_radius
-# maybe need to use some haversine magic to compute angles
+# TODO add radius correction based on the latitude, see: http://en.wikipedia.org/wiki/Earth_radius#Geocentric_radius
 # TODO currently only 'sampling', to be 'exact' a full path should be performed on the actual dataset
 
 config = ConfigParser.ConfigParser()
@@ -52,11 +61,19 @@ gdal.AllRegister()
 ds = gdal.Open(ds_filename, GA_ReadOnly)
 
 elevations = []
+half_central_angle = geometry.half_central_angle(math.radians(first_lat), math.radians(first_long),
+                                                 math.radians(second_lat), math.radians(second_long))
+max_overhead = geometry.overhead_height(half_central_angle, geometry.earth_radius)
+
 for i in range(definition+1):
     i_lat = first_lat + ((second_lat - first_lat) * i) / definition
     i_long = first_long + ((second_long - first_long) * i) / definition
-    value = geods.read_ds_value_from_wgs84(ds, i_lat, i_long)
-    elevations.append(value)
+    elevation = geods.read_ds_value_from_wgs84(ds, i_lat, i_long)
+    distance = geometry.distance_between_wgs84_coordinates(first_lat, first_long, i_lat, i_long)
+    angle = 2 * geometry.half_central_angle(math.radians(first_lat), math.radians(first_long),
+                                            math.radians(i_lat), math.radians(i_long))
+    overhead = max_overhead - geometry.overhead_height(half_central_angle - angle, geometry.earth_radius)
+    elevations.append({'lat': i_lat, 'long': i_long, 'distance': distance, 'elevation': elevation, 'overhead': overhead})
 
 print "elevation profile between coordinates " + str(first_lat) + ", " + str(first_long) + " and " + str(second_lat)\
       + ", " + str(second_long) + " is"

@@ -48,3 +48,15 @@ def distance_between_wgs84_coordinates(wgs84_lat1, wgs84_long1, wgs84_lat2, wgs8
     half_angle = half_central_angle(math.radians(wgs84_lat1), math.radians(wgs84_long1),
                                     math.radians(wgs84_lat2), math.radians(wgs84_long2))
     return 2 * earth_radius * half_angle
+
+def overhead_height(angle, radius):
+    """
+        Computes the overhead height induced by the earth curvature of the specified angle.
+
+        The formula is detailed in the ``overhead_comparison.py`` file in the ``overhead_height_c`` function.
+
+        :param angle: the angle to determine overhead height
+        :param radius: the radius of the sphere
+        :return: the overhead height
+    """
+    return 2 * radius * math.sin(angle / 2) ** 2

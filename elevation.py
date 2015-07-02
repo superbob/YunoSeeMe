@@ -1,5 +1,9 @@
 #!/usr/bin/env python
 
+"""
+    Simple script that prints the elevation in meters of a point referenced by its WGS 84 latitude and longitude.
+"""
+
 import logging
 import os
 import sys

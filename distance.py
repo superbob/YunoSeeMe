@@ -1,5 +1,10 @@
 #!/usr/bin/env python
 
+"""
+    Simple script that computes the distance in meters between two points referenced by their WGS 84
+    latitude and longitude.
+"""
+
 import geometry
 import sys
 

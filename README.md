@@ -5,13 +5,22 @@ This is a collection of tools to compute elevation profiles between two points.
 
 It makes an extensive use of GDAL to handle DEM files to get elevation data from.
 
+Run
+---
+
+ 1. Clone this repository
+ 2. Check the requirements (python >= 2.7 and the libraries listed bellow)
+ 3. Download a DEM (see _DEM maps_ and _Tests_)
+ 4. Run
+   > ```$ ./profile.py lat1 long1 lat2 long2 path/to/dem/file```
+
 Dependencies
 ------------
 
 It needs the following python libraries to work correctly:
 
  * NumPy (1.9.2)
- * GDAL (1.11.2 <- not the default one)
+ * GDAL (1.11.2 <- not the last one)
  * CherryPy (3.8.0) (to run the web server)
  * pytest (2.7.2) (to run tests)
 
@@ -73,6 +82,14 @@ It can be downloaded from the following link: http://dds.cr.usgs.gov/srtm/versio
 Download, unzip and copy it to the `_dem` folder at the root of the project.
 
 It is also the default DEM when running the tools (specified in the `config.ini` file). It can be changed either in the config file or by command line.
+
+TODO
+----
+
+ * Add more tests (as always).
+ * Generate graphs with _matplotlib_ or similar
+ * Draw the line of sight between elevated points
+ * Add some scoring about the probable visibility between two elevated points
 
 Q&A
 ---

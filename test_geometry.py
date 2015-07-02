@@ -14,3 +14,8 @@ def test_distance_between_wgs84_coordinates():
     expected = 11796.338490
     actual = geometry.distance_between_wgs84_coordinates(43.588276, 1.318601, 43.605867, 1.463143)
     assert abs(expected - actual) < 0.001
+
+def test_overhead_height():
+    expected = 2.731679321737121
+    actual = geometry.overhead_height(0.00092629, geometry.earth_radius)
+    assert abs(expected - actual) < 0.001
