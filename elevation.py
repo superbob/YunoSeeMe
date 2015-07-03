@@ -15,32 +15,38 @@ import geods
 
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
-logger = logging.getLogger(os.path.basename(__file__))
+LOGGER = logging.getLogger(os.path.basename(__file__))
 
-config = ConfigParser.ConfigParser()
-config.read('config.ini')
-ds_filename = config.get('dem', 'location')
+def main():
+    """Main entrypoint"""
 
-# ds file name
-if len(sys.argv) >= 4:
-    ds_filename = sys.argv[3]  # ex: '/path/to/file/EUD_CP-DEMS_3500025000-AA.tif'
+    config = ConfigParser.ConfigParser()
+    config.read('config.ini')
+    ds_filename = config.get('dem', 'location')
 
-logger.debug("using the following DEM: %s", ds_filename)
+    # data source file name
+    if len(sys.argv) >= 4:
+        ds_filename = sys.argv[3]  # ex: '/path/to/file/EUD_CP-DEMS_3500025000-AA.tif'
 
-# TODO enforce input arguments
+    LOGGER.debug("using the following DEM: %s", ds_filename)
 
-# 'GPS' coordinates to get pixel values for
-input_lat = float(sys.argv[1])  # ex: 43.561725
-input_long = float(sys.argv[2])  # ex: 1.444796
+    # TODO enforce input arguments
 
-logger.debug("requesting elevation for wgs84 lat: %f, long: %f", input_lat, input_long)
+    # 'GPS' coordinates to get pixel values for
+    input_lat = float(sys.argv[1])  # ex: 43.561725
+    input_long = float(sys.argv[2])  # ex: 1.444796
 
-# register all of the drivers
-gdal.AllRegister()
-# open the image
-ds = gdal.Open(ds_filename, GA_ReadOnly)
+    LOGGER.debug("requesting elevation for wgs84 lat: %f, long: %f", input_lat, input_long)
 
-# get the value
-value = geods.read_ds_value_from_wgs84(ds, input_lat, input_long)
+    # register all of the drivers
+    gdal.AllRegister()
+    # open the image
+    data_source = gdal.Open(ds_filename, GA_ReadOnly)
 
-print 'elevation for coordinates: %f, %f is %f' % (input_lat, input_long, value)
+    # get the value
+    value = geods.read_ds_value_from_wgs84(data_source, input_lat, input_long)
+
+    print 'elevation for coordinates: %f, %f is %f' % (input_lat, input_long, value)
+
+if __name__ == '__main__':
+    main()

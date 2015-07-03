@@ -20,7 +20,7 @@ def half_central_angle(rad_lat1, rad_long1, rad_lat2, rad_long2):
         math.sin((rad_lat2 - rad_lat1) / 2) ** 2
         + math.cos(rad_lat1) * math.cos(rad_lat2) * math.sin((rad_long2 - rad_long1) / 2) ** 2))
 
-def quadratic_mean(a, b):
+def quadratic_mean(a, b):  # pylint: disable=invalid-name
     """
         Compute a quadratic mean of to values.
 
@@ -31,9 +31,9 @@ def quadratic_mean(a, b):
     return math.sqrt((a ** 2 + b ** 2) / 2)
 
 # Values from https://en.wikipedia.org/wiki/Earth_radius#Global_average_radii
-equatorial_radius = 6378137.0
-polar_radius = 6356752.3
-earth_radius = quadratic_mean(equatorial_radius, polar_radius)
+EQUATORIAL_RADIUS = 6378137.0
+POLAR_RADIUS = 6356752.3
+EARTH_RADIUS = quadratic_mean(EQUATORIAL_RADIUS, POLAR_RADIUS)
 
 def distance_between_wgs84_coordinates(wgs84_lat1, wgs84_long1, wgs84_lat2, wgs84_long2):
     """
@@ -47,7 +47,7 @@ def distance_between_wgs84_coordinates(wgs84_lat1, wgs84_long1, wgs84_lat2, wgs8
     """
     half_angle = half_central_angle(math.radians(wgs84_lat1), math.radians(wgs84_long1),
                                     math.radians(wgs84_lat2), math.radians(wgs84_long2))
-    return 2 * earth_radius * half_angle
+    return 2 * EARTH_RADIUS * half_angle
 
 def overhead_height(angle, radius):
     """

@@ -14,7 +14,7 @@ import logging
 import os
 from osgeo import osr
 
-logger = logging.getLogger(os.path.basename(__file__))
+LOGGER = logging.getLogger(os.path.basename(__file__))
 
 def transform_from_wgs84(projection_ref, wgs84_lat, wgs84_long):
     """
@@ -76,18 +76,18 @@ def compute_offset(transform, ds_x, ds_y):
 
     return offset_x, offset_y
 
-def read_ds_data(ds, offset_x, offset_y):
+def read_ds_data(data_source, offset_x, offset_y):
     """
         Read the ds value at the specified projected coordinates.
 
-        :param ds: the dataset to read the value in
+        :param data_source: the dataset to read the value in
         :param offset_x: the x offset
         :param offset_y: the y offset
         :return: the value or None if the specified coordinate is a "no data"
     """
-    band = ds.GetRasterBand(1)  # 1-based index, data shall be in the first band
+    band = data_source.GetRasterBand(1)  # 1-based index, data shall be in the first band
     no_data_value = band.GetNoDataValue()
-    logger.debug("for this band, no data is: %s", no_data_value)
+    LOGGER.debug("for this band, no data is: %s", no_data_value)
     data = band.ReadAsArray(offset_x, offset_y, 1, 1)  # read a 1x1 array containing the requested value
     value = data[0, 0]
     if value is not no_data_value:
@@ -95,19 +95,19 @@ def read_ds_data(ds, offset_x, offset_y):
     else:
         return None
 
-def read_ds_value_from_wgs84(ds, wgs84_lat, wgs84_long):
+def read_ds_value_from_wgs84(data_source, wgs84_lat, wgs84_long):
     """
         Read the ds value at the specified WGS 84 (GPS) coordinates.
 
-        :param ds: the dataset to read the value in
+        :param data_source: the dataset to read the value in
         :param wgs84_lat: the WGS 84 latitude
         :param wgs84_long: the WGS 84 longitude
         :return: the value or None if the specified coordinate is a "no data"
     """
-    projected_x, projected_y = transform_from_wgs84(ds.GetProjectionRef(), wgs84_lat, wgs84_long)
-    logger.debug("projected x: %f, projected y: %f", projected_x, projected_y)
+    projected_x, projected_y = transform_from_wgs84(data_source.GetProjectionRef(), wgs84_lat, wgs84_long)
+    LOGGER.debug("projected x: %f, projected y: %f", projected_x, projected_y)
 
-    offset_x, offset_y = compute_offset(ds.GetGeoTransform(), projected_x, projected_y)
-    logger.debug("offset x: %d, offset y: %d", offset_x, offset_y)
+    offset_x, offset_y = compute_offset(data_source.GetGeoTransform(), projected_x, projected_y)
+    LOGGER.debug("offset x: %d, offset y: %d", offset_x, offset_y)
 
-    return read_ds_data(ds, offset_x, offset_y)
+    return read_ds_data(data_source, offset_x, offset_y)

@@ -68,7 +68,7 @@ _http://www.eea.europa.eu/data-and-maps/data/eu-dem#tab-metadata_
 >
 > It was managed by NASA's Jet Propulsion Laboratory, Pasadena, California, for NASA's Science Mission Directorate, Washington, D.C.
 >
->SRTM flew aboard the Space Shuttle Endeavour in February 2000, mapping Earth's topography between 56 degrees south and 60 degrees north of the equator
+> SRTM flew aboard the Space Shuttle Endeavour in February 2000, mapping Earth's topography between 56 degrees south and 60 degrees north of the equator
 
 _http://www.jpl.nasa.gov/news/news.php?release=2014-321_
 

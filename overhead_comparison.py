@@ -69,12 +69,18 @@ def overhead_height_c(angle, radius):
     """
     return 2 * radius * math.sin(angle / 2) ** 2
 
-checked_angle = 0.00092629
-result_a = overhead_height_a(checked_angle, geometry.earth_radius)
-result_b = overhead_height_b(checked_angle, geometry.earth_radius)
-result_c = overhead_height_c(checked_angle, geometry.earth_radius)
+def main():
+    """Main entrypoint"""
 
-print 'spherical correction for %f is a: %f, b: %f, c: %f' % (checked_angle, result_a, result_b, result_c)
-print 'relative difference (a//b) is %f%%' % ((result_a - result_b) / ((result_a + result_b) * 2) * 100)
-print 'relative difference (a//c) is %f%%' % ((result_a - result_c) / ((result_a + result_c) * 2) * 100)
-print 'relative difference (b//c) is %f%%' % ((result_b - result_c) / ((result_b + result_c) * 2) * 100)
+    checked_angle = 0.00092629
+    result_a = overhead_height_a(checked_angle, geometry.EARTH_RADIUS)
+    result_b = overhead_height_b(checked_angle, geometry.EARTH_RADIUS)
+    result_c = overhead_height_c(checked_angle, geometry.EARTH_RADIUS)
+
+    print 'spherical correction for %f is a: %f, b: %f, c: %f' % (checked_angle, result_a, result_b, result_c)
+    print 'relative difference (a//b) is %f%%' % ((result_a - result_b) / ((result_a + result_b) * 2) * 100)
+    print 'relative difference (a//c) is %f%%' % ((result_a - result_c) / ((result_a + result_c) * 2) * 100)
+    print 'relative difference (b//c) is %f%%' % ((result_b - result_c) / ((result_b + result_c) * 2) * 100)
+
+if __name__ == '__main__':
+    main()
