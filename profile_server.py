@@ -8,10 +8,11 @@ import logging
 import os
 import sys
 import cherrypy
-import geods
 from osgeo import gdal
 from gdalconst import GA_ReadOnly
 import ConfigParser
+
+import profile
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
@@ -28,8 +29,6 @@ def main():
         ds_filename = sys.argv[1]  # ex: '/path/to/file/EUD_CP-DEMS_3500025000-AA.tif'
 
     LOGGER.debug("using the following DEM: %s", ds_filename)
-
-    resolution = 512
 
     # register all of the drivers
     gdal.AllRegister()
@@ -60,17 +59,7 @@ def main():
                 :param second_long: longitude of the second point
                 :return: the list of elevations between the two points
             """
-            elevations = []
-            for i in range(resolution+1):
-                first_lat_float = float(first_lat)
-                first_long_float = float(first_long)
-                second_lat_float = float(second_lat)
-                second_long_float = float(second_long)
-                i_lat = first_lat_float + ((second_lat_float - first_lat_float) * i) / resolution
-                i_long = first_long_float + ((second_long_float - first_long_float) * i) / resolution
-                value = geods.read_ds_value_from_wgs84(data_source, i_lat, i_long)
-                elevations.append(value.astype(float))
-            return elevations
+            return profile.profile(data_source, first_lat, first_long, second_lat, second_long)
 
         # TODO to be done
         @cherrypy.expose

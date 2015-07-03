@@ -46,7 +46,7 @@ def main():
     # get the value
     value = geods.read_ds_value_from_wgs84(data_source, input_lat, input_long)
 
-    print 'elevation for coordinates: %f, %f is %f' % (input_lat, input_long, value)
+    print "elevation for coordinates: %f, %f is %f" % (input_lat, input_long, value)
 
 if __name__ == '__main__':
     main()

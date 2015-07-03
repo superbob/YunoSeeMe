@@ -20,7 +20,7 @@ def main():
 
     distance = geometry.distance_between_wgs84_coordinates(first_lat, first_long, second_lat, second_long)
 
-    print 'distance is: %fm' % distance
+    print "distance is: %fm" % distance
 
 if __name__ == '__main__':
     main()
