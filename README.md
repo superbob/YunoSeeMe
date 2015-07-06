@@ -12,7 +12,7 @@ Run
  2. Check the requirements (python >= 2.7 and the libraries listed bellow)
  3. Download a DEM (see _DEM maps_ and _Tests_)
  4. Run
-   > ```$ ./profile.py lat1 long1 lat2 long2 path/to/dem/file```
+   > ```./profile.py lat1 long1 lat2 long2 path/to/dem/file```
 
 Dependencies
 ------------
@@ -23,6 +23,7 @@ It needs the following python libraries to work correctly:
  * GDAL (1.11.2 <- not the last one)
  * CherryPy (3.8.0) (to run the web server)
  * pytest (2.7.2) (to run tests)
+ * matplotlib (1.4.3)
 
 These libraries can be obtained by pip or easy\_install. They _may_ need two following system packages to work correctly:
 
@@ -36,6 +37,14 @@ virtualenv
 ----------
 
 A virtualenv can be used (in fact, I use one). Consider using the `--no-site-packages` option.
+
+Linux
+-----
+
+On Linux based systems, GDAL python module install may need to have the headers location specified:
+
+    export CPLUS_INCLUDE_PATH=/usr/include/gdal
+    export C_INCLUDE_PATH=/usr/include/gdal
 
 MacOS X
 -------
