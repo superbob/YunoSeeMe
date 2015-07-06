@@ -10,16 +10,58 @@ import sys
 from osgeo import gdal
 from gdalconst import GA_ReadOnly
 import ConfigParser
-# import math
 
 import profile
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
+from matplotlib.patches import Polygon
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
 LOGGER = logging.getLogger(os.path.basename(__file__))
+
+def generate_plot(profile_data):
+    x = [data['distance'] for data in profile_data]
+    y_elev = [data['elevation'] for data in profile_data]
+    y_elev_plus_correction = [data['elevation'] + data['overhead'] for data in profile_data]
+
+    y2_correction = [data['overhead'] for data in profile_data]
+
+    fig = plt.figure()
+    sub_plt = fig.add_subplot(111)
+
+    sub_plt.plot(x, y_elev_plus_correction, 'r--', label='Elevation + Correction', dashes=(5, 2))
+    sub_plt.plot(x, y_elev, 'k-', label='Elevation')
+
+    sub_plt_twin = sub_plt.twinx()
+    sub_plt_twin.plot(x, y2_correction, 'r-', label='Correction')
+
+    sub_plt.legend(loc=2, fontsize='small')
+    sub_plt.grid()
+    sub_plt.set_xlim(min(x), max(x))
+    sub_plt.set_xlabel("Distance (m)")
+    sub_plt.set_ylabel("Elevation (m)")
+
+    sub_plt_twin.legend(loc=1, fontsize='small')
+    sub_plt_min, sub_plt_max = sub_plt.get_ylim()
+    sub_plt_twin.set_ylim(0, sub_plt_max - sub_plt_min)
+
+    for tl in sub_plt_twin.get_yticklabels():
+        tl.set_color('r')
+
+    transparent = (1, 1, 1, 0)
+
+    vert1 = list(zip(x, y2_correction))
+    poly1 = Polygon(vert1, edgecolor=transparent, facecolor=(1, 0, 0, 0.1))
+    sub_plt_twin.add_patch(poly1)
+
+    vert2 = list(zip(x, y_elev_plus_correction)) + list(zip(reversed(x), reversed(y_elev)))
+    poly2 = Polygon(vert2, edgecolor=transparent, facecolor=(1, 0, 0, 0.1))
+    sub_plt.add_patch(poly2)
+
+    fig.savefig('profile.png')
+
 
 def main():
     """Main entrypoint"""
@@ -51,13 +93,7 @@ def main():
     data_source = gdal.Open(ds_filename, GA_ReadOnly)
 
     profile_data = profile.profile(data_source, first_lat, first_long, second_lat, second_long)
-    distance = [x['distance'] for x in profile_data]
-    elevation = [x['elevation'] for x in profile_data]
-
-    fig = plt.figure()
-    sub_plt = fig.add_subplot(111)
-    sub_plt.plot(distance, elevation, '-')
-    fig.savefig('test.png')
+    generate_plot(profile_data)
 
 if __name__ == '__main__':
     main()
