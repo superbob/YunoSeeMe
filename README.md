@@ -11,8 +11,15 @@ Run
  1. Clone this repository
  2. Check the requirements (python >= 2.7 and the libraries listed bellow)
  3. Download a DEM (see _DEM maps_ and _Tests_)
- 4. Run
+ 4. To display the profile as JSON raw data, run
    > ```./profile.py lat1 long1 lat2 long2 path/to/dem/file```
+ 5. To display the profile as a PNG picture, run
+   > ```./profile-graph.py lat1 long1 lat2 long2 path/to/dem/file```
+ 6. Look for the generated `profile.png` file
+ 7. To start the WebServer, run
+   > ```./profile-server.py path/to/dem/file```
+ 8. Browse to http://localhost:8080/profile/json?first_lat=lat1&first_long=long1&second_lat=lat2&second_long=long2 for JSON data or
+ 9. Browse to http://localhost:8080/profile/png?first_lat=lat1&first_long=long1&second_lat=lat2&second_long=long2 for PNG data
 
 Dependencies
 ------------
@@ -95,9 +102,8 @@ It is also the default DEM when running the tools (specified in the `config.ini`
 TODO
 ----
 
- * Add more tests (as always).
- * Generate graphs with _matplotlib_ or similar
- * Draw the line of sight between elevated points
+ * Add more tests (as always)
+ * Add offset to the line of sight between elevated points
  * Add some scoring about the probable visibility between two elevated points
 
 Q&A
