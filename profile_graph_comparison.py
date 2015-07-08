@@ -2,6 +2,14 @@
 
 """
     Script that generate a comparison of different profile graphs, based on `profile.py` to get profile data.
+    It generates 3 image files for each graph style:
+
+     * profile-detailed.png, from the generate_detailed_plot function: a detailed view of the profile
+     * profile-curved-earth.png, from the generate_curved_earth_plot function: show the terrain with curvature
+            correction and a straight line of sight
+     * profile-curved-sight.png, from the generate_curved_sight_plot function: show the terrain without curature
+            correction and a curved line of sight
+
 """
 
 import logging
