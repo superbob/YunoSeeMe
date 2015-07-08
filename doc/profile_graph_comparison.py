@@ -11,7 +11,6 @@
             correction and a curved line of sight
 
 """
-
 import logging
 import sys
 import ConfigParser

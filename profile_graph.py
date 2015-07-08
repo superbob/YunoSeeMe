@@ -32,7 +32,7 @@ def manual_linear_scaled_range(data):
 
     return scaled_min, scaled_max
 
-def generate_figure(profile_data, filename):
+def generate_figure(profile_data, filename, file_format='png'):
     # Prepare data
     x = [data['distance'] / 1000 for data in profile_data]
     y_elev_plus_correction = [data['elevation'] + data['overhead'] for data in profile_data]
@@ -72,7 +72,7 @@ def generate_figure(profile_data, filename):
     # Format and save
     # setting dpi with figure.set_dpi() seem to be useless, the dpi really used is the one in savefig()
     fig.set_size_inches(10, 3.5)
-    fig.savefig(filename, bbox_inches='tight', dpi=80)
+    fig.savefig(filename, bbox_inches='tight', dpi=80, format=file_format)
 
 def main():
     """Main entrypoint"""

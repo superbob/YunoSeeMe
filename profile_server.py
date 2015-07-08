@@ -11,8 +11,10 @@ import cherrypy
 from osgeo import gdal
 from gdalconst import GA_ReadOnly
 import ConfigParser
+from io import BytesIO
 
 import profile
+import profile_graph
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
@@ -50,6 +52,7 @@ def main():
         @cherrypy.expose
         @cherrypy.tools.json_out()
         def json(self, first_lat, first_long, second_lat, second_long):
+            # TODO, fix json formatting issue
             """
                 JSON mapping that outputs the elevations.
 
@@ -59,16 +62,28 @@ def main():
                 :param second_long: longitude of the second point
                 :return: the list of elevations between the two points
             """
-            return profile.profile(data_source, first_lat, first_long, second_lat, second_long)
+            return str(profile.profile(data_source, float(first_lat), float(first_long), float(second_lat),
+                                       float(second_long)))
 
-        # TODO to be done
         @cherrypy.expose
-        def png(self):
+        def png(self, first_lat, first_long, second_lat, second_long):
             """
                 PNG mapping that outputs a png image of the profile
-                :return:
+
+                :param first_lat: latitude of the first point
+                :param first_long: longitude of the first point
+                :param second_lat: latitude of the second point
+                :param second_long: longitude of the second point
+                :return: the picture of the requested profile
             """
-            return "png output"
+            buf = BytesIO()
+            profile_graph.generate_figure(
+                profile.profile(data_source, float(first_lat), float(first_long), float(second_lat),
+                                float(second_long)),
+                buf)
+            buf.seek(0)
+            cherrypy.response.headers['Content-Type'] = 'image/png'
+            return buf
     # pylint: enable=no-self-use
 
     cherrypy.quickstart(Profile(), '/profile')
