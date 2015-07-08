@@ -67,6 +67,7 @@ def main():
 
         @cherrypy.expose
         def png(self, first_lat, first_long, second_lat, second_long):
+            # TODO, add image size to http headers
             """
                 PNG mapping that outputs a png image of the profile
 
