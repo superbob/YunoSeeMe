@@ -39,11 +39,11 @@ def profile(data_source, wgs84_lat1, wgs86_long1, wgs84_lat2, wgs84_long2,
     half_central_angle = geometry.half_central_angle(math.radians(wgs84_lat1), math.radians(wgs86_long1),
                                                      math.radians(wgs84_lat2), math.radians(wgs84_long2))
     max_overhead = geometry.overhead_height(half_central_angle, geometry.EARTH_RADIUS)
-    start_sight = height1
+    start_sight = float(height1)
     if above_ground1:
         start_sight += geods.read_ds_value_from_wgs84(data_source, wgs84_lat1, wgs86_long1)
 
-    end_sight = height2
+    end_sight = float(height2)
     if above_ground2:
         end_sight += geods.read_ds_value_from_wgs84(data_source, wgs84_lat2, wgs84_long2)
 
