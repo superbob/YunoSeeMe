@@ -1,15 +1,16 @@
 #!/usr/bin/env python
 
 """
-    Simple script that prints the elevation in meters of a point referenced by its WGS 84 latitude and longitude.
+Simple program that prints the elevation in meters of a point referenced by its WGS 84 latitude and longitude.
 """
 
+import argparse
+import ConfigParser
 import logging
 import os
-import sys
+
 from osgeo import gdal
 from gdalconst import GA_ReadOnly
-import ConfigParser
 
 import geods
 
@@ -22,31 +23,27 @@ def main():
 
     config = ConfigParser.ConfigParser()
     config.read('config.ini')
-    ds_filename = config.get('dem', 'location')
+    config_dem_location = config.get('dem', 'location')
 
-    # data source file name
-    if len(sys.argv) >= 4:
-        ds_filename = sys.argv[3]  # ex: '/path/to/file/EUD_CP-DEMS_3500025000-AA.tif'
+    parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    parser.add_argument('lat', type=float, help="latitude, ex: 43.561725")
+    parser.add_argument('long', type=float, help="longitude, ex: 1.444796")
+    parser.add_argument('-d', '--dem', help="DEM file location, ex: '/path/to/file/EUD_CP-DEMS_3500025000-AA.tif'",
+                        default=config_dem_location)
+    args = parser.parse_args()
 
-    LOGGER.debug("using the following DEM: %s", ds_filename)
-
-    # TODO enforce input arguments
-
-    # 'GPS' coordinates to get pixel values for
-    input_lat = float(sys.argv[1])  # ex: 43.561725
-    input_long = float(sys.argv[2])  # ex: 1.444796
-
-    LOGGER.debug("requesting elevation for wgs84 lat: %f, long: %f", input_lat, input_long)
+    LOGGER.debug("requesting elevation for wgs84 lat: %f, long: %f using the following DEM: %s", args.lat, args.long,
+                 args.dem)
 
     # register all of the drivers
     gdal.AllRegister()
     # open the image
-    data_source = gdal.Open(ds_filename, GA_ReadOnly)
+    data_source = gdal.Open(args.dem, GA_ReadOnly)
 
     # get the value
-    value = geods.read_ds_value_from_wgs84(data_source, input_lat, input_long)
+    value = geods.read_ds_value_from_wgs84(data_source, args.lat, args.long)
 
-    print "elevation for coordinates: %f, %f is %f" % (input_lat, input_long, value)
+    print "elevation for coordinates: %f, %f is %f" % (args.lat, args.long, value)
 
 if __name__ == '__main__':
     main()

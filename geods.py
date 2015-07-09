@@ -12,6 +12,7 @@
 
 import logging
 import os
+
 from osgeo import osr
 
 LOGGER = logging.getLogger(os.path.basename(__file__))

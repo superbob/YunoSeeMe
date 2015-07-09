@@ -4,14 +4,15 @@
     Script that run a web server doing the same as `profile.py` but in a RESTful webservice fashion.
 """
 
+import cherrypy
+import ConfigParser
 import logging
 import os
 import sys
-import cherrypy
+from io import BytesIO
+
 from osgeo import gdal
 from gdalconst import GA_ReadOnly
-import ConfigParser
-from io import BytesIO
 
 import profile
 import profile_graph

@@ -1,18 +1,19 @@
 #!/usr/bin/env python
 
 """
-    Script that generate a profile graphs, see `profile_graph_comparison.py` for other graph options.
-    This one uses the "profile-curved-earth.png from the generate_curved_earth_plot function"
+Program that generate a profile graph, see `profile_graph_comparison.py` for other graph options.
+This one uses the "profile-curved-earth.png from the generate_curved_earth_plot function"
 """
 
-import logging
-import sys
+import argparse
 import ConfigParser
+import math
+import logging
 import os
+
 from osgeo import gdal
 from gdalconst import GA_ReadOnly
 import matplotlib.pyplot as plt
-import math
 
 import profile
 
@@ -78,32 +79,28 @@ def main():
     """Main entrypoint"""
     config = ConfigParser.ConfigParser()
     config.read('config.ini')
-    ds_filename = config.get('dem', 'location')
+    config_dem_location = config.get('dem', 'location')
 
-    # data source file name
-    if len(sys.argv) >= 6:
-        ds_filename = sys.argv[5]  # ex: '/path/to/file/EUD_CP-DEMS_3500025000-AA.tif'
+    parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    parser.add_argument('first_lat', type=float, help="first point latitude, ex: 43.561725")
+    parser.add_argument('first_long', type=float, help="first point longitude, ex: 1.444796")
+    parser.add_argument('second_lat', type=float, help="second point latitude, ex: 43.671348")
+    parser.add_argument('second_long', type=float, help="second point longitude, ex: 1.225619")
+    parser.add_argument('-d', '--dem', help="DEM file location, ex: '/path/to/file/EUD_CP-DEMS_3500025000-AA.tif'",
+                        default=config_dem_location)
+    args = parser.parse_args()
 
-    LOGGER.debug("using the following DEM: %s", ds_filename)
-
-    # 'GPS' coordinates of the first point
-    first_lat = float(sys.argv[1])  # ex: 43.561725
-    first_long = float(sys.argv[2])  # ex: 1.444796
-
-    # 'GPS' coordinates of the second point
-    second_lat = float(sys.argv[3])  # ex: 43.671348
-    second_long = float(sys.argv[4])  # ex: 1.225619
-
+    LOGGER.debug("using the following DEM: %s", args.dem)
     LOGGER.debug("requesting profile for the following 'GPS' coordinates")
-    LOGGER.debug("first wgs84 lat: %f, long: %f", first_lat, first_long)
-    LOGGER.debug("second wgs84 lat: %f, long: %f", second_lat, second_long)
+    LOGGER.debug("first wgs84 lat: %f, long: %f", args.first_lat, args.first_long)
+    LOGGER.debug("second wgs84 lat: %f, long: %f", args.second_lat, args.second_long)
 
     # register all of the drivers
     gdal.AllRegister()
     # open the image
-    data_source = gdal.Open(ds_filename, GA_ReadOnly)
+    data_source = gdal.Open(args.dem, GA_ReadOnly)
 
-    profile_data = profile.profile(data_source, first_lat, first_long, second_lat, second_long)
+    profile_data = profile.profile(data_source, args.first_lat, args.first_long, args.second_lat, args.second_long)
 
     generate_figure(profile_data, 'profile.png')
 
