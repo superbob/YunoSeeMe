@@ -21,6 +21,59 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(level
 
 LOGGER = logging.getLogger(os.path.basename(__file__))
 
+class Profile(object):
+    """Profile service"""
+    def __init__(self, data_source):
+        self.data_source = data_source
+
+# pylint: disable=no-self-use
+    @cherrypy.expose
+    def index(self):
+        """
+            Index mapping that redirects to /profile/json.
+
+            :return: nothing, raises an exception to redirect
+        """
+        raise cherrypy.HTTPRedirect("/profile/json", 301)
+# pylint: enable=no-self-use
+
+    @cherrypy.expose
+    @cherrypy.tools.json_out()
+    def json(self, first_lat, first_long, second_lat, second_long):
+        # TODO, fix json formatting issue
+        """
+            JSON mapping that outputs the elevations.
+
+            :param first_lat: latitude of the first point
+            :param first_long: longitude of the first point
+            :param second_lat: latitude of the second point
+            :param second_long: longitude of the second point
+            :return: the list of elevations between the two points
+        """
+        return str(profile.profile(self.data_source, float(first_lat), float(first_long), float(second_lat),
+                                   float(second_long)))
+
+    @cherrypy.expose
+    def png(self, first_lat, first_long, second_lat, second_long):
+        # TODO, add image size to http headers
+        """
+            PNG mapping that outputs a png image of the profile
+
+            :param first_lat: latitude of the first point
+            :param first_long: longitude of the first point
+            :param second_lat: latitude of the second point
+            :param second_long: longitude of the second point
+            :return: the picture of the requested profile
+        """
+        buf = BytesIO()
+        profile_graph.generate_figure(
+            profile.profile(self.data_source, float(first_lat), float(first_long), float(second_lat),
+                            float(second_long)),
+            buf)
+        buf.seek(0)
+        cherrypy.response.headers['Content-Type'] = 'image/png'
+        return buf
+
 def main():
     """Main entrypoint"""
     config = ConfigParser.ConfigParser()
@@ -38,57 +91,7 @@ def main():
     # open the image
     data_source = gdal.Open(ds_filename, GA_ReadOnly)
 
-    # pylint: disable=no-self-use
-    class Profile(object):
-        """Profile service"""
-        @cherrypy.expose
-        def index(self):
-            """
-                Index mapping that redirects to /profile/json.
-
-                :return: nothing, raises an exception to redirect
-            """
-            raise cherrypy.HTTPRedirect("/profile/json", 301)
-
-        @cherrypy.expose
-        @cherrypy.tools.json_out()
-        def json(self, first_lat, first_long, second_lat, second_long):
-            # TODO, fix json formatting issue
-            """
-                JSON mapping that outputs the elevations.
-
-                :param first_lat: latitude of the first point
-                :param first_long: longitude of the first point
-                :param second_lat: latitude of the second point
-                :param second_long: longitude of the second point
-                :return: the list of elevations between the two points
-            """
-            return str(profile.profile(data_source, float(first_lat), float(first_long), float(second_lat),
-                                       float(second_long)))
-
-        @cherrypy.expose
-        def png(self, first_lat, first_long, second_lat, second_long):
-            # TODO, add image size to http headers
-            """
-                PNG mapping that outputs a png image of the profile
-
-                :param first_lat: latitude of the first point
-                :param first_long: longitude of the first point
-                :param second_lat: latitude of the second point
-                :param second_long: longitude of the second point
-                :return: the picture of the requested profile
-            """
-            buf = BytesIO()
-            profile_graph.generate_figure(
-                profile.profile(data_source, float(first_lat), float(first_long), float(second_lat),
-                                float(second_long)),
-                buf)
-            buf.seek(0)
-            cherrypy.response.headers['Content-Type'] = 'image/png'
-            return buf
-    # pylint: enable=no-self-use
-
-    cherrypy.quickstart(Profile(), '/profile')
+    cherrypy.quickstart(Profile(data_source), '/profile')
 
 if __name__ == '__main__':
     main()
