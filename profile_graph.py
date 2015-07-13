@@ -11,6 +11,7 @@ import math
 import logging
 import os
 
+import numpy as np
 from osgeo import gdal
 from gdalconst import GA_ReadOnly
 import matplotlib.pyplot as plt
@@ -22,8 +23,8 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(level
 LOGGER = logging.getLogger(os.path.basename(__file__))
 
 def manual_linear_scaled_range(data):
-    data_min = min(data)
-    data_max = max(data)
+    data_min = np.amin(data)
+    data_max = np.amax(data)
 
     log_diff = math.log10(data_max-data_min)
     step = 10 ** math.floor(log_diff)
@@ -35,13 +36,13 @@ def manual_linear_scaled_range(data):
 
 def generate_figure(profile_data, filename, file_format='png'):
     # Prepare data
-    x = [data['distance'] / 1000 for data in profile_data]
-    y_elev_plus_correction = [data['elevation'] + data['overhead'] for data in profile_data]
-    y_sight = [data['sight'] for data in profile_data]
+    x = profile_data['distances'] / 1000
+    y_elev_plus_correction = profile_data['elevations'] + profile_data['overheads']
+    y_sight = profile_data['sights']
 
     y_min, y_max = manual_linear_scaled_range(y_elev_plus_correction)
-    floor = [y_min for i in x]
-    floor_plus_correction = [y_min + data['overhead'] for data in profile_data]
+    floor = np.full_like(x, y_min)
+    floor_plus_correction = floor + profile_data['overheads']
 
     # Prepare plot
     fig = plt.figure()

@@ -5,21 +5,32 @@ This is a collection of tools to compute elevation profiles between two points.
 
 It makes an extensive use of GDAL to handle DEM files to get elevation data from.
 
-Run
----
+Setup
+-----
 
  1. Clone this repository
  2. Check the requirements (python >= 2.7 and the libraries listed bellow)
  3. Download a DEM (see _DEM maps_ and _Tests_)
- 4. To display the profile as JSON raw data, run
-   > ```./profile.py lat1 long1 lat2 long2 path/to/dem/file```
- 5. To display the profile as a PNG picture, run
-   > ```./profile-graph.py lat1 long1 lat2 long2 path/to/dem/file```
- 6. Look for the generated `profile.png` file
- 7. To start the WebServer, run
-   > ```./profile-server.py path/to/dem/file```
- 8. Browse to http://localhost:8080/profile/json?first_lat=lat1&first_long=long1&second_lat=lat2&second_long=long2 for JSON data or
- 9. Browse to http://localhost:8080/profile/png?first_lat=lat1&first_long=long1&second_lat=lat2&second_long=long2 for PNG data
+
+Run
+---
+
+#### Raw data from the command line
+
+    ./profile.py lat1 long1 lat2 long2 path/to/dem/file
+
+#### Generate a PNG picture of a profile
+
+    ./profile-graph.py lat1 long1 lat2 long2 path/to/dem/file
+
+Look for the generated `profile.png` file
+
+#### Start a webserver service both (JSON and PNG)
+
+    ./profile-server.py path/to/dem/file
+
+ * Browse to `http://localhost:8080/profile/json?first_lat=lat1&first_long=long1&second_lat=lat2&second_long=long2` for JSON
+ * Browse to `http://localhost:8080/profile/png?first_lat=lat1&first_long=long1&second_lat=lat2&second_long=long2` for PNG
 
 Dependencies
 ------------
@@ -45,21 +56,19 @@ virtualenv
 
 A virtualenv can be used (in fact, I use one). Consider using the `--no-site-packages` option.
 
-Linux
------
+#### Linux
 
-On Linux based systems, GDAL python module install may need to have the headers location specified:
+On Linux based systems, GDAL python module install may need to have the headers location correctly specified:
 
     export CPLUS_INCLUDE_PATH=/usr/include/gdal
     export C_INCLUDE_PATH=/usr/include/gdal
 
-MacOS X
--------
+#### MacOS X
 
 The MacOS X link (http://www.kyngchaos.com/software:frameworks) contains a package that bundles all the GDAL requirements (GDAL Complete Framework) except NumPy that should already be installed in the system.
 
-The gdal python library may not work (especially when using a virtualenv),
-in that case, you can copy the library included in the GDAL Framework using the following command inside your environment:
+The gdal python library may not work in a virtualenv, in that case,
+you can copy the library included in the GDAL Framework using the following command inside your environment:
 
     cp -R /Library/Frameworks/GDAL.framework/Versions/1.11/Python/2.7/site-packages/* <env>/lib/python2.7/site-packages
 
@@ -99,10 +108,19 @@ Download, unzip and copy it to the `_dem` folder at the root of the project.
 
 It is also the default DEM when running the tools (specified in the `config.ini` file). It can be changed either in the config file or by command line.
 
+Known limitations
+-----------------
+
+ * Only works with 1 DEM file, if the path is among 2 or more DEMs, it won't work
+ * It is not possible to specify an offset (from the ground level) to the line of sight, it will come soon
+ * JSON output is not really json:
+   * profile.py outputs a python "dict to string" display with some numpy dtype stuff in it
+   * profile_server.py outputs the same thing embedded in a string (with newlines)
+
 TODO
 ----
 
- * Add more tests (as always)
+ * More tests (there are currently not enough)
  * Add offset to the line of sight between elevated points
  * Add some scoring about the probable visibility between two elevated points
 

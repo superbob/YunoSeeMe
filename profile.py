@@ -18,6 +18,7 @@ import logging
 import math
 import os
 
+import numpy as np
 from osgeo import gdal
 from gdalconst import GA_ReadOnly
 
@@ -35,31 +36,29 @@ LOGGER = logging.getLogger(os.path.basename(__file__))
 
 def profile(data_source, wgs84_lat1, wgs86_long1, wgs84_lat2, wgs84_long2,
             height1=0, height2=0, above_ground1=True, above_ground2=True, definition=512):
-    elevations = []
+    profile_data = {}
     half_central_angle = geometry.half_central_angle(math.radians(wgs84_lat1), math.radians(wgs86_long1),
                                                      math.radians(wgs84_lat2), math.radians(wgs84_long2))
     max_overhead = geometry.overhead_height(half_central_angle, geometry.EARTH_RADIUS)
     start_sight = float(height1)
     if above_ground1:
-        start_sight += geods.read_ds_value_from_wgs84(data_source, wgs84_lat1, wgs86_long1)
+        start_sight += float(geods.read_ds_value_from_wgs84(data_source, wgs84_lat1, wgs86_long1))
 
     end_sight = float(height2)
     if above_ground2:
-        end_sight += geods.read_ds_value_from_wgs84(data_source, wgs84_lat2, wgs84_long2)
+        end_sight += float(geods.read_ds_value_from_wgs84(data_source, wgs84_lat2, wgs84_long2))
 
-    for i in range(definition+1):
-        i_lat = wgs84_lat1 + ((wgs84_lat2 - wgs84_lat1) * i) / definition
-        i_long = wgs86_long1 + ((wgs84_long2 - wgs86_long1) * i) / definition
-        i_sight = start_sight + ((end_sight - start_sight) * i) / definition
-        elevation = geods.read_ds_value_from_wgs84(data_source, i_lat, i_long)
-        distance = geometry.distance_between_wgs84_coordinates(wgs84_lat1, wgs86_long1, i_lat, i_long)
-        angle = 2 * geometry.half_central_angle(math.radians(wgs84_lat1), math.radians(wgs86_long1),
-                                                math.radians(i_lat), math.radians(i_long))
-        overhead = max_overhead - geometry.overhead_height(half_central_angle - angle, geometry.EARTH_RADIUS)
-        elevations.append({'lat': i_lat, 'long': i_long, 'distance': distance, 'elevation': elevation,
-                           'overhead': overhead, 'sight': i_sight})
-
-    return elevations
+    profile_data['latitudes'] = latitudes = np.linspace(wgs84_lat1, wgs84_lat2, definition)
+    profile_data['longitudes'] = longitudes = np.linspace(wgs86_long1, wgs84_long2, definition)
+    profile_data['sights'] = np.linspace(start_sight, end_sight, definition)
+    profile_data['elevations'] = geods.read_ds_value_from_wgs84(data_source, latitudes, longitudes)
+    profile_data['distances'] = geometry.distance_between_wgs84_coordinates(wgs84_lat1, wgs86_long1, latitudes,
+                                                                            longitudes)
+    angles = 2 * geometry.half_central_angle(np.deg2rad(wgs84_lat1), np.deg2rad(wgs86_long1), np.deg2rad(latitudes),
+                                             np.deg2rad(longitudes))
+    profile_data['overheads'] = max_overhead - geometry.overhead_height(half_central_angle - angles,
+                                                                        geometry.EARTH_RADIUS)
+    return profile_data
 
 def main():
     """Main entrypoint"""
