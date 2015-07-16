@@ -68,28 +68,28 @@ def main():
     config_dem_location = config.get('dem', 'location')
 
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    parser.add_argument('first_lat', type=float, help="first point latitude, ex: 43.561725")
-    parser.add_argument('first_long', type=float, help="first point longitude, ex: 1.444796")
-    parser.add_argument('second_lat', type=float, help="second point latitude, ex: 43.671348")
-    parser.add_argument('second_long', type=float, help="second point longitude, ex: 1.225619")
+    parser.add_argument('lat1', type=float, help="first point latitude, ex: 43.561725")
+    parser.add_argument('long1', type=float, help="first point longitude, ex: 1.444796")
+    parser.add_argument('lat2', type=float, help="second point latitude, ex: 43.671348")
+    parser.add_argument('long2', type=float, help="second point longitude, ex: 1.225619")
     parser.add_argument('-d', '--dem', help="DEM file location, ex: '/path/to/file/EUD_CP-DEMS_3500025000-AA.tif'",
                         default=config_dem_location)
     args = parser.parse_args()
 
     LOGGER.debug("using the following DEM: %s", args.dem)
     LOGGER.debug("requesting profile for the following 'GPS' coordinates")
-    LOGGER.debug("first wgs84 lat: %f, long: %f", args.first_lat, args.first_long)
-    LOGGER.debug("second wgs84 lat: %f, long: %f", args.second_lat, args.second_long)
+    LOGGER.debug("first wgs84 lat: %f, long: %f", args.lat1, args.long1)
+    LOGGER.debug("second wgs84 lat: %f, long: %f", args.lat2, args.long2)
 
     # register all of the drivers
     gdal.AllRegister()
     # open the image
     data_source = gdal.Open(args.dem, GA_ReadOnly)
 
-    elevations = profile(data_source, args.first_lat, args.first_long, args.second_lat, args.second_long)
+    elevations = profile(data_source, args.lat1, args.long1, args.lat2, args.long2)
 
     print "elevation profile between coordinates %f, %f and %f, %f is"\
-          % (args.first_lat, args.first_long, args.second_lat, args.second_long)
+          % (args.lat1, args.long1, args.lat2, args.long2)
     print str(elevations)
 
 if __name__ == '__main__':

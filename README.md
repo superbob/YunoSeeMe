@@ -17,20 +17,20 @@ Run
 
 #### Raw data from the command line
 
-    ./profile.py lat1 long1 lat2 long2 path/to/dem/file
+    ./profile.py lat1 long1 lat2 long2 -d path/to/dem/file
 
 #### Generate a PNG picture of a profile
 
-    ./profile-graph.py lat1 long1 lat2 long2 path/to/dem/file
+    ./profile-graph.py lat1 long1 lat2 long2 -d path/to/dem/file
 
 Look for the generated `profile.png` file
 
 #### Start a webserver service both (JSON and PNG)
 
-    ./profile-server.py path/to/dem/file
+    ./profile-server.py -d path/to/dem/file
 
- * Browse to `http://localhost:8080/profile/json?first_lat=lat1&first_long=long1&second_lat=lat2&second_long=long2` for JSON
- * Browse to `http://localhost:8080/profile/png?first_lat=lat1&first_long=long1&second_lat=lat2&second_long=long2` for PNG
+ * Browse to `http://localhost:8080/profile/json?lat1=lat1&long1=long1&lat2=lat2&long2=long2` for JSON
+ * Browse to `http://localhost:8080/profile/png?lat1=lat1&long1=long1&lat2=lat2&long2=long2` for PNG
 
 Dependencies
 ------------

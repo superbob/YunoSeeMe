@@ -1,16 +1,17 @@
 #!/usr/bin/env python
 
 """
-    Script that run a web server doing the same as `profile.py` but in a RESTful webservice fashion.
+Program that run a web server providing elevation profile and profile graph in a RESTful webservice fashion.
+See profile.py and profile_graph.py for generation details.
 """
 
-import cherrypy
+import argparse
 import ConfigParser
+from io import BytesIO
 import logging
 import os
-import sys
-from io import BytesIO
 
+import cherrypy
 from osgeo import gdal
 from gdalconst import GA_ReadOnly
 
@@ -30,45 +31,45 @@ class Profile(object):
     @cherrypy.expose
     def index(self):
         """
-            Index mapping that redirects to /profile/json.
+        Index mapping that redirects to /profile/json.
 
-            :return: nothing, raises an exception to redirect
+        :return: nothing, raises an exception to redirect
         """
         raise cherrypy.HTTPRedirect("/profile/json", 301)
 # pylint: enable=no-self-use
 
     @cherrypy.expose
     @cherrypy.tools.json_out()
-    def json(self, first_lat, first_long, second_lat, second_long):
+    def json(self, lat1, long1, lat2, long2):
         # TODO, fix json formatting issue
         """
-            JSON mapping that outputs the elevations.
+        JSON mapping that outputs the elevations.
 
-            :param first_lat: latitude of the first point
-            :param first_long: longitude of the first point
-            :param second_lat: latitude of the second point
-            :param second_long: longitude of the second point
-            :return: the list of elevations between the two points
+        :param lat1: latitude of the first point
+        :param long1: longitude of the first point
+        :param lat2: latitude of the second point
+        :param long2: longitude of the second point
+        :return: the list of elevations between the two points
         """
-        return str(profile.profile(self.data_source, float(first_lat), float(first_long), float(second_lat),
-                                   float(second_long)))
+        return str(profile.profile(self.data_source, float(lat1), float(long1), float(lat2),
+                                   float(long2)))
 
     @cherrypy.expose
-    def png(self, first_lat, first_long, second_lat, second_long):
+    def png(self, lat1, long1, lat2, long2):
         # TODO, add image size to http headers
         """
-            PNG mapping that outputs a png image of the profile
+        PNG mapping that outputs a png image of the profile
 
-            :param first_lat: latitude of the first point
-            :param first_long: longitude of the first point
-            :param second_lat: latitude of the second point
-            :param second_long: longitude of the second point
-            :return: the picture of the requested profile
+        :param lat1: latitude of the first point
+        :param long1: longitude of the first point
+        :param lat2: latitude of the second point
+        :param long2: longitude of the second point
+        :return: the picture of the requested profile
         """
         buf = BytesIO()
         profile_graph.generate_figure(
-            profile.profile(self.data_source, float(first_lat), float(first_long), float(second_lat),
-                            float(second_long)),
+            profile.profile(self.data_source, float(lat1), float(long1), float(lat2),
+                            float(long2)),
             buf)
         buf.seek(0)
         cherrypy.response.headers['Content-Type'] = 'image/png'
@@ -78,18 +79,19 @@ def main():
     """Main entrypoint"""
     config = ConfigParser.ConfigParser()
     config.read('config.ini')
-    ds_filename = config.get('dem', 'location')
+    config_dem_location = config.get('dem', 'location')
 
-    # data source file name
-    if len(sys.argv) >= 2:
-        ds_filename = sys.argv[1]  # ex: '/path/to/file/EUD_CP-DEMS_3500025000-AA.tif'
+    parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    parser.add_argument('-d', '--dem', help="DEM file location, ex: '/path/to/file/EUD_CP-DEMS_3500025000-AA.tif'",
+                        default=config_dem_location)
+    args = parser.parse_args()
 
-    LOGGER.debug("using the following DEM: %s", ds_filename)
+    LOGGER.debug("using the following DEM: %s", args.dem)
 
     # register all of the drivers
     gdal.AllRegister()
     # open the image
-    data_source = gdal.Open(ds_filename, GA_ReadOnly)
+    data_source = gdal.Open(args.dem, GA_ReadOnly)
 
     cherrypy.quickstart(Profile(data_source), '/profile')
 
