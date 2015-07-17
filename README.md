@@ -112,7 +112,6 @@ Known limitations
 -----------------
 
  * Only works with 1 DEM file, if the path is among 2 or more DEMs, it won't work
- * It is not possible to specify an offset (from the ground level) to the line of sight, it will come soon
  * JSON output is not really json:
    * profile.py outputs a python "dict to string" display with some numpy dtype stuff in it
    * profile_server.py outputs the same thing embedded in a string (with newlines)
@@ -121,7 +120,6 @@ TODO
 ----
 
  * More tests (there are currently not enough)
- * Add offset to the line of sight between elevated points
  * Add some scoring about the probable visibility between two elevated points
 
 Q&A

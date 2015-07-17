@@ -40,7 +40,7 @@ def generate_figure(profile_data, filename, file_format='png'):
     y_elev_plus_correction = profile_data['elevations'] + profile_data['overheads']
     y_sight = profile_data['sights']
 
-    y_min, y_max = manual_linear_scaled_range(y_elev_plus_correction)
+    y_min, y_max = manual_linear_scaled_range(np.concatenate([y_elev_plus_correction, y_sight]))
     floor = np.full_like(x, y_min)
     floor_plus_correction = floor + profile_data['overheads']
 
@@ -89,7 +89,32 @@ def main():
     parser.add_argument('long2', type=float, help="second point longitude, ex: 1.225619")
     parser.add_argument('-d', '--dem', help="DEM file location, ex: '/path/to/file/EUD_CP-DEMS_3500025000-AA.tif'",
                         default=config_dem_location)
+    offset1_group = parser.add_mutually_exclusive_group()
+    offset1_group.add_argument('-og1', '--offset-ground1', type=float, metavar='OFF1',
+                               help="first point line of sight offset from the ground level, ex: 6")
+    offset1_group.add_argument('-os1', '--offset-sea1', type=float, metavar='OFF1',
+                               help="first point line of sight offset from the sea level, ex: 180")
+    offset2_group = parser.add_mutually_exclusive_group()
+    offset2_group.add_argument('-og2', '--offset-ground2', type=float, metavar='OFF2',
+                               help="second point line of sight offset from the ground level, ex: 10")
+    offset2_group.add_argument('-os2', '--offset-sea2', type=float, metavar='OFF2',
+                               help="second point line of sight offset from the sea level, ex: 200")
     args = parser.parse_args()
+
+    kwargs = {}
+    if args.offset_sea1 is not None:
+        kwargs['height1'] = args.offset_sea1
+        kwargs['above_ground1'] = False
+    elif args.offset_ground1 is not None:
+        kwargs['height1'] = args.offset_ground1
+        kwargs['above_ground1'] = True
+
+    if args.offset_sea2 is not None:
+        kwargs['height2'] = args.offset_sea2
+        kwargs['above_ground2'] = False
+    elif args.offset_ground1 is not None:
+        kwargs['height2'] = args.offset_ground2
+        kwargs['above_ground2'] = True
 
     LOGGER.debug("using the following DEM: %s", args.dem)
     LOGGER.debug("requesting profile for the following 'GPS' coordinates")
@@ -101,7 +126,7 @@ def main():
     # open the image
     data_source = gdal.Open(args.dem, GA_ReadOnly)
 
-    profile_data = profile.profile(data_source, args.lat1, args.long1, args.lat2, args.long2)
+    profile_data = profile.profile(data_source, args.lat1, args.long1, args.lat2, args.long2, **kwargs)
 
     generate_figure(profile_data, 'profile.png')
 

@@ -40,7 +40,7 @@ class Profile(object):
 
     @cherrypy.expose
     @cherrypy.tools.json_out()
-    def json(self, lat1, long1, lat2, long2):
+    def json(self, lat1, long1, lat2, long2, og1=None, os1=None, og2=None, os2=None):
         # TODO, fix json formatting issue
         """
         JSON mapping that outputs the elevations.
@@ -49,13 +49,38 @@ class Profile(object):
         :param long1: longitude of the first point
         :param lat2: latitude of the second point
         :param long2: longitude of the second point
+        :param og1: line of sight offset from the ground level of the first point
+        :param os1: line of sight offset from the sea level of the first point
+        :param og2: line of sight offset from the ground level of the second point
+        :param os2: line of sight offset from the sea level of the second point
         :return: the list of elevations between the two points
         """
+        if og1 is not None and os1 is not None:
+            raise cherrypy.HTTPError(400, "Incompatible parameters 'og1' and 'os1")
+
+        if og2 is not None and os2 is not None:
+            raise cherrypy.HTTPError(400, "Incompatible parameters 'og2' and 'os2")
+
+        kwargs = {}
+        if os1 is not None:
+            kwargs['height1'] = os1
+            kwargs['above_ground1'] = False
+        elif og1 is not None:
+            kwargs['height1'] = og1
+            kwargs['above_ground1'] = True
+
+        if os2 is not None:
+            kwargs['height2'] = os2
+            kwargs['above_ground2'] = False
+        elif og2 is not None:
+            kwargs['height2'] = og2
+            kwargs['above_ground2'] = True
+
         return str(profile.profile(self.data_source, float(lat1), float(long1), float(lat2),
-                                   float(long2)))
+                                   float(long2), **kwargs))
 
     @cherrypy.expose
-    def png(self, lat1, long1, lat2, long2):
+    def png(self, lat1, long1, lat2, long2, og1=None, os1=None, og2=None, os2=None):
         # TODO, add image size to http headers
         """
         PNG mapping that outputs a png image of the profile
@@ -64,12 +89,37 @@ class Profile(object):
         :param long1: longitude of the first point
         :param lat2: latitude of the second point
         :param long2: longitude of the second point
+        :param og1: line of sight offset from the ground level of the first point
+        :param os1: line of sight offset from the sea level of the first point
+        :param og2: line of sight offset from the ground level of the second point
+        :param os2: line of sight offset from the sea level of the second point
         :return: the picture of the requested profile
         """
+        if og1 is not None and os1 is not None:
+            raise cherrypy.HTTPError(400, "Incompatible parameters 'og1' and 'os1")
+
+        if og2 is not None and os2 is not None:
+            raise cherrypy.HTTPError(400, "Incompatible parameters 'og2' and 'os2")
+
+        kwargs = {}
+        if os1 is not None:
+            kwargs['height1'] = os1
+            kwargs['above_ground1'] = False
+        elif og1 is not None:
+            kwargs['height1'] = og1
+            kwargs['above_ground1'] = True
+
+        if os2 is not None:
+            kwargs['height2'] = os2
+            kwargs['above_ground2'] = False
+        elif og2 is not None:
+            kwargs['height2'] = og2
+            kwargs['above_ground2'] = True
+
         buf = BytesIO()
         profile_graph.generate_figure(
             profile.profile(self.data_source, float(lat1), float(long1), float(lat2),
-                            float(long2)),
+                            float(long2), **kwargs),
             buf)
         buf.seek(0)
         cherrypy.response.headers['Content-Type'] = 'image/png'
