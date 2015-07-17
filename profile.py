@@ -14,6 +14,7 @@ The profile consists in a list of points equally distributed with their:
 
 import argparse
 import ConfigParser
+import json
 import logging
 import math
 import os
@@ -59,6 +60,16 @@ def profile(data_source, wgs84_lat1, wgs86_long1, wgs84_lat2, wgs84_long2,
     profile_data['overheads'] = max_overhead - geometry.overhead_height(half_central_angle - angles,
                                                                         geometry.EARTH_RADIUS)
     return profile_data
+
+class NumpyEncoder(json.JSONEncoder):
+    def default(self, obj):
+        """
+        if input object is a ndarray it will be converted into an array by calling ndarray.tolist
+        """
+        if isinstance(obj, np.ndarray):
+            return obj.tolist()
+
+        return json.JSONEncoder.default(self, obj)
 
 def main():
     """Main entrypoint"""
@@ -113,9 +124,7 @@ def main():
 
     elevations = profile(data_source, args.lat1, args.long1, args.lat2, args.long2, **kwargs)
 
-    print "elevation profile between coordinates %f, %f and %f, %f is"\
-          % (args.lat1, args.long1, args.lat2, args.long2)
-    print str(elevations)
+    print json.dumps(elevations, cls=NumpyEncoder)
 
 if __name__ == '__main__':
     main()

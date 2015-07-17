@@ -112,9 +112,6 @@ Known limitations
 -----------------
 
  * Only works with 1 DEM file, if the path is among 2 or more DEMs, it won't work
- * JSON output is not really json:
-   * profile.py outputs a python "dict to string" display with some numpy dtype stuff in it
-   * profile_server.py outputs the same thing embedded in a string (with newlines)
 
 TODO
 ----

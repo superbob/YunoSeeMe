@@ -8,6 +8,7 @@ See profile.py and profile_graph.py for generation details.
 import argparse
 import ConfigParser
 from io import BytesIO
+import json
 import logging
 import os
 
@@ -39,9 +40,7 @@ class Profile(object):
 # pylint: enable=no-self-use
 
     @cherrypy.expose
-    @cherrypy.tools.json_out()
     def json(self, lat1, long1, lat2, long2, og1=None, os1=None, og2=None, os2=None):
-        # TODO, fix json formatting issue
         """
         JSON mapping that outputs the elevations.
 
@@ -76,12 +75,13 @@ class Profile(object):
             kwargs['height2'] = og2
             kwargs['above_ground2'] = True
 
-        return str(profile.profile(self.data_source, float(lat1), float(long1), float(lat2),
-                                   float(long2), **kwargs))
+        elevations = profile.profile(self.data_source, float(lat1), float(long1), float(lat2), float(long2), **kwargs)
+
+        cherrypy.response.headers['Content-Type'] = 'application/json'
+        return json.dumps(elevations, cls=profile.NumpyEncoder)
 
     @cherrypy.expose
     def png(self, lat1, long1, lat2, long2, og1=None, os1=None, og2=None, os2=None):
-        # TODO, add image size to http headers
         """
         PNG mapping that outputs a png image of the profile
 
