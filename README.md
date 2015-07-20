@@ -25,7 +25,7 @@ Run
 
 Look for the generated `profile.png` file
 
-#### Start a webserver service both (JSON and PNG)
+#### Start a webserver serving both (JSON and PNG)
 
     ./profile-server.py -d path/to/dem/file
 
