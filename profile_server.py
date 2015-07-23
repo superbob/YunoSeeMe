@@ -7,33 +7,19 @@ See profiler.py and profile_output.py for generation details.
 
 import argparse
 import ConfigParser
-from io import BytesIO
-import json
 import logging
 import os
 
 import cherrypy
 from osgeo import gdal
 from gdalconst import GA_ReadOnly
-import numpy as np
 
 import profiler
-import profile_output
+import profile_format
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
 LOGGER = logging.getLogger(os.path.basename(__file__))
-
-
-class NumpyEncoder(json.JSONEncoder):
-    def default(self, obj):
-        """
-        if input object is a ndarray it will be converted into an array by calling ndarray.tolist
-        """
-        if isinstance(obj, np.ndarray):
-            return obj.tolist()
-
-        return json.JSONEncoder.default(self, obj)
 
 
 class Profile(object):
@@ -93,7 +79,7 @@ class Profile(object):
         elevations = profiler.profile(self.data_source, float(lat1), float(long1), float(lat2), float(long2), **kwargs)
 
         cherrypy.response.headers['Content-Type'] = 'application/json'
-        return json.dumps(elevations, cls=NumpyEncoder)
+        return profile_format.JSON.get_data(elevations)
 
     @cherrypy.expose
     def png(self, lat1, long1, lat2, long2, og1=None, os1=None, og2=None, os2=None):
@@ -131,12 +117,10 @@ class Profile(object):
             kwargs['height2'] = og2
             kwargs['above_ground2'] = True
 
-        buf = BytesIO()
-        profile_output.generate_figure(profiler.profile(self.data_source, float(lat1), float(long1), float(lat2),
-                                                        float(long2), **kwargs), buf)
-        buf.seek(0)
+        elevations = profiler.profile(self.data_source, float(lat1), float(long1), float(lat2), float(long2), **kwargs)
+
         cherrypy.response.headers['Content-Type'] = 'image/png'
-        return buf
+        return profile_format.PNG.get_data(elevations)
 
 
 def main():
