@@ -18,6 +18,7 @@ from osgeo import osr
 
 LOGGER = logging.getLogger(os.path.basename(__file__))
 
+
 def transform_from_wgs84(projection_ref, wgs84_lat, wgs84_long):
     """
     Transforms WGS 84 (GPS) coordinates to the specified coordinate system (WKT).
@@ -45,6 +46,7 @@ def transform_from_wgs84(projection_ref, wgs84_lat, wgs84_long):
     ref_point = vectorized_transform(wgs84_long, wgs84_lat)
 
     return ref_point[0], ref_point[1]
+
 
 def compute_offset(transform, ds_x, ds_y):
     """
@@ -79,6 +81,7 @@ def compute_offset(transform, ds_x, ds_y):
 
     return offset_x, offset_y
 
+
 def read_band_data(band, no_data, offset_x, offset_y):
     """
     Read a single value from a band, replacing "NoData" with None
@@ -95,7 +98,9 @@ def read_band_data(band, no_data, offset_x, offset_y):
     else:
         return None
 
+
 vectorized_read_band_data = np.vectorize(read_band_data, excluded=('band', 'no_data'))
+
 
 def read_ds_data(data_source, offset_x, offset_y):
     """
@@ -115,6 +120,7 @@ def read_ds_data(data_source, offset_x, offset_y):
         data = vectorized_read_band_data(band, no_data_value, offset_x, offset_y)
 
     return data
+
 
 def read_ds_value_from_wgs84(data_source, wgs84_lat, wgs84_long):
     """

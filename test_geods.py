@@ -36,6 +36,7 @@ EPSG3035_WKT = """PROJCS["ETRS89 / ETRS-LAEA",
     AXIS["X",EAST],
     AXIS["Y",NORTH]]"""
 
+
 def test_transform_from_wgs84():
     expected_x = 3629916.385801
     expected_y = 2316502.956137
@@ -43,6 +44,7 @@ def test_transform_from_wgs84():
 
     assert abs(expected_x - actual[0]) <= EPSILON
     assert abs(expected_y - actual[1]) <= EPSILON
+
 
 def test_transform_from_wgs84_np():
     expected_x = np.array([3596322.69380009, 3604604.56529048, 3612866.96142577, 3621109.83240858, 3629333.12848138,
@@ -55,7 +57,9 @@ def test_transform_from_wgs84_np():
         assert abs(exp_x - act_x) <= EPSILON
         assert abs(exp_y - act_y) <= EPSILON
 
+
 TRANSFORM = (3000000.0, 25.0, 0, 3000000.0, 0, -25.0)
+
 
 def test_compute_offset():
     expected_x = 25196
@@ -64,6 +68,7 @@ def test_compute_offset():
 
     assert actual[0] == expected_x
     assert actual[1] == expected_y
+
 
 def test_compute_offset_np():
     expected_x = np.array([24000, 24311, 24622, 24933, 25244, 25555, 25866, 26177, 26488, 26800])
@@ -74,6 +79,7 @@ def test_compute_offset_np():
         assert act_x == exp_x
         assert act_y == exp_y
 
+
 def test_read_ds_data():
     expected = 151.0
     gdal.AllRegister()
@@ -81,6 +87,7 @@ def test_read_ds_data():
     actual = geods.read_ds_data(data_source, 529, 477)
 
     assert abs(expected - actual) <= EPSILON
+
 
 def test_read_ds_data_np():
     expected = np.array([195, 182, 176, 177, 175, 160, 136, 130, 109, 113])
@@ -91,6 +98,7 @@ def test_read_ds_data_np():
 
     for exp, act in zip(expected, actual):
         assert abs(exp - act) <= EPSILON
+
 
 def test_read_ds_value_from_wgs84():
     expected = 151.0

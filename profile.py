@@ -30,6 +30,7 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(level
 
 LOGGER = logging.getLogger(os.path.basename(__file__))
 
+
 # TODO add radius correction based on the latitude, see: http://en.wikipedia.org/wiki/Earth_radius#Geocentric_radius
 # TODO currently only 'sampling', to be 'exact' a full path should be performed on the actual dataset
 # TODO rasterize a polyline:
@@ -61,6 +62,7 @@ def profile(data_source, wgs84_lat1, wgs86_long1, wgs84_lat2, wgs84_long2,
                                                                         geometry.EARTH_RADIUS)
     return profile_data
 
+
 class NumpyEncoder(json.JSONEncoder):
     def default(self, obj):
         """
@@ -70,6 +72,7 @@ class NumpyEncoder(json.JSONEncoder):
             return obj.tolist()
 
         return json.JSONEncoder.default(self, obj)
+
 
 def main():
     """Main entrypoint"""
@@ -125,6 +128,7 @@ def main():
     elevations = profile(data_source, args.lat1, args.long1, args.lat2, args.long2, **kwargs)
 
     print json.dumps(elevations, cls=NumpyEncoder)
+
 
 if __name__ == '__main__':
     main()

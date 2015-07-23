@@ -18,6 +18,7 @@ logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(name)s - %(leve
 
 LOGGER = logging.getLogger(os.path.basename(__file__))
 
+
 def main():
     """Main entrypoint"""
 
@@ -44,6 +45,7 @@ def main():
     value = geods.read_ds_value_from_wgs84(data_source, args.lat, args.long)
 
     print "elevation for coordinates: %f, %f is %f" % (args.lat, args.long, value)
+
 
 if __name__ == '__main__':
     main()

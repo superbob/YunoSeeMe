@@ -23,12 +23,14 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(level
 
 LOGGER = logging.getLogger(os.path.basename(__file__))
 
+
 class Profile(object):
     """Profile service"""
+
     def __init__(self, data_source):
         self.data_source = data_source
 
-# pylint: disable=no-self-use
+    # pylint: disable=no-self-use
     @cherrypy.expose
     def index(self):
         """
@@ -37,7 +39,8 @@ class Profile(object):
         :return: nothing, raises an exception to redirect
         """
         raise cherrypy.HTTPRedirect("/profile/json", 301)
-# pylint: enable=no-self-use
+
+    # pylint: enable=no-self-use
 
     @cherrypy.expose
     def json(self, lat1, long1, lat2, long2, og1=None, os1=None, og2=None, os2=None):
@@ -125,6 +128,7 @@ class Profile(object):
         cherrypy.response.headers['Content-Type'] = 'image/png'
         return buf
 
+
 def main():
     """Main entrypoint"""
     config = ConfigParser.ConfigParser()
@@ -144,6 +148,7 @@ def main():
     data_source = gdal.Open(args.dem, GA_ReadOnly)
 
     cherrypy.quickstart(Profile(data_source), '/profile')
+
 
 if __name__ == '__main__':
     main()

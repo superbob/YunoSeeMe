@@ -9,6 +9,7 @@ import argparse
 
 import geometry
 
+
 def main():
     """Main entrypoint"""
 
@@ -23,6 +24,7 @@ def main():
                                                            args.second_lat, args.second_long)
 
     print "distance is: %fm" % distance
+
 
 if __name__ == '__main__':
     main()

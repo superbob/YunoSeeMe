@@ -22,17 +22,19 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(level
 
 LOGGER = logging.getLogger(os.path.basename(__file__))
 
+
 def manual_linear_scaled_range(data):
     data_min = np.amin(data)
     data_max = np.amax(data)
 
-    log_diff = math.log10(data_max-data_min)
+    log_diff = math.log10(data_max - data_min)
     step = 10 ** math.floor(log_diff)
 
     scaled_min = math.floor(data_min / step) * step
     scaled_max = math.ceil(data_max / step) * step
 
     return scaled_min, scaled_max
+
 
 def generate_figure(profile_data, filename, file_format='png'):
     # Prepare data
@@ -75,6 +77,7 @@ def generate_figure(profile_data, filename, file_format='png'):
     # setting dpi with figure.set_dpi() seem to be useless, the dpi really used is the one in savefig()
     fig.set_size_inches(10, 3.5)
     fig.savefig(filename, bbox_inches='tight', dpi=80, format=file_format)
+
 
 def main():
     """Main entrypoint"""
@@ -129,6 +132,7 @@ def main():
     profile_data = profile.profile(data_source, args.lat1, args.long1, args.lat2, args.long2, **kwargs)
 
     generate_figure(profile_data, 'profile.png')
+
 
 if __name__ == '__main__':
     main()
