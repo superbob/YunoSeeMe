@@ -6,7 +6,7 @@ import gdal
 from gdalconst import GA_ReadOnly
 import ConfigParser
 
-import profile
+import profiler
 
 CONFIG = ConfigParser.ConfigParser()
 CONFIG.read('pytest.ini')
@@ -25,7 +25,7 @@ def test_profile():
 
     gdal.AllRegister()
     data_source = gdal.Open(DS_FILENAME, GA_ReadOnly)
-    actual = profile.profile(data_source, 43.2, 1.2, 43.8, 1.8, definition=10)
+    actual = profiler.profile(data_source, 43.2, 1.2, 43.8, 1.8, definition=10)
 
     for exp_d, act_d in zip(expected_distances, actual['distances']):
         assert abs(exp_d - act_d) <= EPSILON

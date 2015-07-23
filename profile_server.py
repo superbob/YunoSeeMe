@@ -2,7 +2,7 @@
 
 """
 Program that run a web server providing elevation profile and profile graph in a RESTful webservice fashion.
-See profile.py and profile_graph.py for generation details.
+See profiler.py and profile_output.py for generation details.
 """
 
 import argparse
@@ -15,13 +15,25 @@ import os
 import cherrypy
 from osgeo import gdal
 from gdalconst import GA_ReadOnly
+import numpy as np
 
-import profile
-import profile_graph
+import profiler
+import profile_output
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
 LOGGER = logging.getLogger(os.path.basename(__file__))
+
+
+class NumpyEncoder(json.JSONEncoder):
+    def default(self, obj):
+        """
+        if input object is a ndarray it will be converted into an array by calling ndarray.tolist
+        """
+        if isinstance(obj, np.ndarray):
+            return obj.tolist()
+
+        return json.JSONEncoder.default(self, obj)
 
 
 class Profile(object):
@@ -78,10 +90,10 @@ class Profile(object):
             kwargs['height2'] = og2
             kwargs['above_ground2'] = True
 
-        elevations = profile.profile(self.data_source, float(lat1), float(long1), float(lat2), float(long2), **kwargs)
+        elevations = profiler.profile(self.data_source, float(lat1), float(long1), float(lat2), float(long2), **kwargs)
 
         cherrypy.response.headers['Content-Type'] = 'application/json'
-        return json.dumps(elevations, cls=profile.NumpyEncoder)
+        return json.dumps(elevations, cls=NumpyEncoder)
 
     @cherrypy.expose
     def png(self, lat1, long1, lat2, long2, og1=None, os1=None, og2=None, os2=None):
@@ -120,10 +132,8 @@ class Profile(object):
             kwargs['above_ground2'] = True
 
         buf = BytesIO()
-        profile_graph.generate_figure(
-            profile.profile(self.data_source, float(lat1), float(long1), float(lat2),
-                            float(long2), **kwargs),
-            buf)
+        profile_output.generate_figure(profiler.profile(self.data_source, float(lat1), float(long1), float(lat2),
+                                                        float(long2), **kwargs), buf)
         buf.seek(0)
         cherrypy.response.headers['Content-Type'] = 'image/png'
         return buf

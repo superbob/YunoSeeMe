@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 """
-Script that generate a comparison of different profile graphs, based on `profile.py` to get profile data.
+Script that generate a comparison of different profile graphs, based on `profiler.py` to get profile data.
 It generates 3 image files for each graph style:
 
  * profile-detailed.png, from the generate_detailed_plot function: a detailed view of the profile
@@ -11,7 +11,7 @@ It generates 3 image files for each graph style:
         correction and a curved line of sight
 """
 
-# TODO these examples may not work anymore since changes in profile.py, fix them
+# TODO these examples may not work anymore since changes in profiler.py, fix them
 
 import logging
 import sys
@@ -22,23 +22,25 @@ from gdalconst import GA_ReadOnly
 import matplotlib.pyplot as plt
 import math
 
-import profile
+import profiler
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
 LOGGER = logging.getLogger(os.path.basename(__file__))
 
+
 def manual_linear_scaled_range(data):
     data_min = min(data)
     data_max = max(data)
 
-    log_diff = math.log10(data_max-data_min)
+    log_diff = math.log10(data_max - data_min)
     step = 10 ** math.floor(log_diff)
 
     scaled_min = math.floor(data_min / step) * step
     scaled_max = math.ceil(data_max / step) * step
 
     return scaled_min, scaled_max
+
 
 def generate_detailed_plot(profile_data, filename):
     # Prepare data
@@ -51,7 +53,7 @@ def generate_detailed_plot(profile_data, filename):
     floor = [y_min for i in x]
     floor_plus_correction = [y_min + data['overhead'] for data in profile_data]
 
-    mid_x = x[int(len(x)/2)]
+    mid_x = x[int(len(x) / 2)]
     max_correction = max([data['overhead'] for data in profile_data])
 
     # Prepare plot
@@ -66,7 +68,8 @@ def generate_detailed_plot(profile_data, filename):
     sub_plt.fill_between(x, floor_plus_correction, floor, linewidth=0, facecolor=(0.85, 0.85, 0.7), xunits=1000.0)
 
     sub_plt.annotate("Max correction: %.2fm" % max_correction, xy=(mid_x, max_correction + y_min),
-                     xytext=(-20, 30), textcoords='offset points', arrowprops=dict(arrowstyle="simple", fc="0.3", ec="none"))
+                     xytext=(-20, 30), textcoords='offset points',
+                     arrowprops=dict(arrowstyle="simple", fc="0.3", ec="none"))
 
     # Fix limits
     sub_plt.set_xlim(min(x), max(x))
@@ -89,6 +92,7 @@ def generate_detailed_plot(profile_data, filename):
     # setting dpi with figure.set_dpi() seem to be useless, the dpi really used is the one in savefig()
     fig.set_size_inches(10, 3.5)
     fig.savefig(filename, bbox_inches='tight', dpi=80)
+
 
 def generate_curved_earth_plot(profile_data, filename):
     # Prepare data
@@ -132,6 +136,7 @@ def generate_curved_earth_plot(profile_data, filename):
     fig.set_size_inches(10, 3.5)
     fig.savefig(filename, bbox_inches='tight', dpi=80)
 
+
 def generate_curved_sight_plot(profile_data, filename):
     # Prepare data
     x = [data['distance'] / 1000 for data in profile_data]
@@ -173,6 +178,7 @@ def generate_curved_sight_plot(profile_data, filename):
     fig.set_size_inches(10, 3.5)
     fig.savefig(filename, bbox_inches='tight', dpi=80)
 
+
 def main():
     """Main entrypoint"""
     config = ConfigParser.ConfigParser()
@@ -202,11 +208,12 @@ def main():
     # open the image
     data_source = gdal.Open(ds_filename, GA_ReadOnly)
 
-    profile_data = profile.profile(data_source, first_lat, first_long, second_lat, second_long)
+    profile_data = profiler.profile(data_source, first_lat, first_long, second_lat, second_long)
 
     generate_detailed_plot(profile_data, 'profile-detailed.png')
     generate_curved_earth_plot(profile_data, 'profile-curved-earth.png')
     generate_curved_sight_plot(profile_data, 'profile-curved-sight.png')
+
 
 if __name__ == '__main__':
     main()

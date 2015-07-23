@@ -1,5 +1,5 @@
 """
-    Collection of geometrical functions.
+Collection of geometrical functions.
 """
 
 import numpy as np

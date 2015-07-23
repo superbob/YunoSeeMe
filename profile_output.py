@@ -1,66 +1,85 @@
 #!/usr/bin/env python
 
 """
-Program that computes a profile between two points referenced by their WGS 84 latitude and longitude.
-
-The profile consists in a list of points equally distributed with their:
-
-  * latitude
-  * longitude
-  * distance from the first point
-  * elevation
-  * overhead of the curvature of the earth
+Program that output a profile in JSON raw data or graph in PNG,
+see `profile_graph_comparison.py` for other graph options.
+This one uses the "profile-curved-earth.png from the generate_curved_earth_plot function"
 """
 
 import argparse
 import ConfigParser
 import json
-import logging
 import math
+import logging
 import os
+import sys
 
 import numpy as np
 from osgeo import gdal
 from gdalconst import GA_ReadOnly
+import matplotlib.pyplot as plt
 
-import geods
-import geometry
+import profiler
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
 LOGGER = logging.getLogger(os.path.basename(__file__))
 
 
-# TODO add radius correction based on the latitude, see: http://en.wikipedia.org/wiki/Earth_radius#Geocentric_radius
-# TODO currently only 'sampling', to be 'exact' a full path should be performed on the actual dataset
-# TODO rasterize a polyline:
-# see: http://gis.stackexchange.com/questions/97306/rasterizing-polyline-data-with-qgis-gdal-custom-line-width
+def manual_linear_scaled_range(data):
+    data_min = np.amin(data)
+    data_max = np.amax(data)
 
-def profile(data_source, wgs84_lat1, wgs86_long1, wgs84_lat2, wgs84_long2,
-            height1=0, height2=0, above_ground1=True, above_ground2=True, definition=512):
-    profile_data = {}
-    half_central_angle = geometry.half_central_angle(math.radians(wgs84_lat1), math.radians(wgs86_long1),
-                                                     math.radians(wgs84_lat2), math.radians(wgs84_long2))
-    max_overhead = geometry.overhead_height(half_central_angle, geometry.EARTH_RADIUS)
-    start_sight = float(height1)
-    if above_ground1:
-        start_sight += float(geods.read_ds_value_from_wgs84(data_source, wgs84_lat1, wgs86_long1))
+    log_diff = math.log10(data_max - data_min)
+    step = 10 ** math.floor(log_diff)
 
-    end_sight = float(height2)
-    if above_ground2:
-        end_sight += float(geods.read_ds_value_from_wgs84(data_source, wgs84_lat2, wgs84_long2))
+    scaled_min = math.floor(data_min / step) * step
+    scaled_max = math.ceil(data_max / step) * step
 
-    profile_data['latitudes'] = latitudes = np.linspace(wgs84_lat1, wgs84_lat2, definition)
-    profile_data['longitudes'] = longitudes = np.linspace(wgs86_long1, wgs84_long2, definition)
-    profile_data['sights'] = np.linspace(start_sight, end_sight, definition)
-    profile_data['elevations'] = geods.read_ds_value_from_wgs84(data_source, latitudes, longitudes)
-    profile_data['distances'] = geometry.distance_between_wgs84_coordinates(wgs84_lat1, wgs86_long1, latitudes,
-                                                                            longitudes)
-    angles = 2 * geometry.half_central_angle(np.deg2rad(wgs84_lat1), np.deg2rad(wgs86_long1), np.deg2rad(latitudes),
-                                             np.deg2rad(longitudes))
-    profile_data['overheads'] = max_overhead - geometry.overhead_height(half_central_angle - angles,
-                                                                        geometry.EARTH_RADIUS)
-    return profile_data
+    return scaled_min, scaled_max
+
+
+def generate_figure(profile_data, filename, file_format='png'):
+    # Prepare data
+    x = profile_data['distances'] / 1000
+    y_elev_plus_correction = profile_data['elevations'] + profile_data['overheads']
+    y_sight = profile_data['sights']
+
+    y_min, y_max = manual_linear_scaled_range(np.concatenate([y_elev_plus_correction, y_sight]))
+    floor = np.full_like(x, y_min)
+    floor_plus_correction = floor + profile_data['overheads']
+
+    # Prepare plot
+    fig = plt.figure()
+    sub_plt = fig.add_subplot(111)
+
+    # Plot
+    sub_plt.plot(x, y_sight, 'g-', label='Sight', linewidth=0.5)
+
+    sub_plt.fill_between(x, y_elev_plus_correction, floor_plus_correction, linewidth=0, facecolor=(0.7, 0.7, 0.7))
+    sub_plt.fill_between(x, floor_plus_correction, floor, linewidth=0, facecolor=(0.85, 0.85, 0.7))
+
+    # Fix limits
+    sub_plt.set_xlim(min(x), max(x))
+    sub_plt.set_ylim(y_min, y_max)
+
+    # Style
+    sub_plt.set_title("Elevation (m) vs. Distance (km)")
+
+    sub_plt.spines["top"].set_visible(False)
+    sub_plt.spines["bottom"].set_visible(False)
+    sub_plt.spines["right"].set_visible(False)
+    sub_plt.spines["left"].set_visible(False)
+
+    sub_plt.tick_params(axis='both', which='both', bottom='on', top='off',
+                        labelbottom='on', left='off', right='off', labelleft='on')
+
+    sub_plt.grid(axis='y')
+
+    # Format and save
+    # setting dpi with figure.set_dpi() seem to be useless, the dpi really used is the one in savefig()
+    fig.set_size_inches(10, 3.5)
+    fig.savefig(filename, bbox_inches='tight', dpi=80, format=file_format)
 
 
 class NumpyEncoder(json.JSONEncoder):
@@ -76,7 +95,6 @@ class NumpyEncoder(json.JSONEncoder):
 
 def main():
     """Main entrypoint"""
-
     config = ConfigParser.ConfigParser()
     config.read('config.ini')
     config_dem_location = config.get('dem', 'location')
@@ -98,6 +116,10 @@ def main():
                                help="second point line of sight offset from the ground level, ex: 10")
     offset2_group.add_argument('-os2', '--offset-sea2', type=float, metavar='OFF2',
                                help="second point line of sight offset from the sea level, ex: 200")
+    parser.add_argument('-of', '--output-format', choices=['json', 'png'], default='json')
+    output_group = parser.add_mutually_exclusive_group()
+    output_group.add_argument('-f', '--filename')
+    output_group.add_argument('-s', '--stdout', action='store_true')
     args = parser.parse_args()
 
     kwargs = {}
@@ -122,13 +144,31 @@ def main():
 
     # register all of the drivers
     gdal.AllRegister()
-    # open the image
+    # open the DEM
     data_source = gdal.Open(args.dem, GA_ReadOnly)
 
-    elevations = profile(data_source, args.lat1, args.long1, args.lat2, args.long2, **kwargs)
+    profile_data = profiler.profile(data_source, args.lat1, args.long1, args.lat2, args.long2, **kwargs)
 
-    print json.dumps(elevations, cls=NumpyEncoder)
+    if args.output_format == 'png':
+        if args.stdout:
+            filename = sys.stdout
+        else:
+            filename = args.filename
+            if filename is None:
+                filename = 'profile.png'
 
+        generate_figure(profile_data, filename)
+
+    else:
+        if args.stdout:
+            print json.dumps(profile_data, cls=NumpyEncoder)
+        else:
+            filename = args.filename
+            if filename is None:
+                filename = 'profile.json'
+            fp = open(filename, mode='w')
+            json.dump(profile_data, fp, cls=NumpyEncoder)
+            fp.close()
 
 if __name__ == '__main__':
     main()
