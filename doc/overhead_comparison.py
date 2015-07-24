@@ -9,8 +9,25 @@
     In conclusion, after running it, we see that the result is identical (relative difference is always 0)
 """
 
-import geometry
 import math
+
+
+def quadratic_mean(a, b):  # pylint: disable=invalid-name
+    """
+        Compute a quadratic mean of to values.
+
+        :param a: first value
+        :param b: second value
+        :return: quadratic mean
+    """
+    return math.sqrt((a ** 2 + b ** 2) / 2)
+
+
+# Values from https://en.wikipedia.org/wiki/Earth_radius#Global_average_radii
+EQUATORIAL_RADIUS = 6378137.0
+POLAR_RADIUS = 6356752.3
+EARTH_RADIUS = float(quadratic_mean(EQUATORIAL_RADIUS, POLAR_RADIUS))
+
 
 def overhead_height_a(angle, radius):
     """
@@ -24,6 +41,7 @@ def overhead_height_a(angle, radius):
     """
     return radius * (1 - math.cos(angle))
 
+
 def overhead_height_b(angle, radius):
     """
         Computes the overhead height of the specified angle.
@@ -36,6 +54,7 @@ def overhead_height_b(angle, radius):
     """
     cos = math.sqrt(1 - math.sin(angle) ** 2)
     return radius * (1 - cos)
+
 
 def overhead_height_c(angle, radius):
     """
@@ -69,18 +88,20 @@ def overhead_height_c(angle, radius):
     """
     return 2 * radius * math.sin(angle / 2) ** 2
 
+
 def main():
     """Main entrypoint"""
 
     checked_angle = 0.00092629
-    result_a = overhead_height_a(checked_angle, geometry.EARTH_RADIUS)
-    result_b = overhead_height_b(checked_angle, geometry.EARTH_RADIUS)
-    result_c = overhead_height_c(checked_angle, geometry.EARTH_RADIUS)
+    result_a = overhead_height_a(checked_angle, EARTH_RADIUS)
+    result_b = overhead_height_b(checked_angle, EARTH_RADIUS)
+    result_c = overhead_height_c(checked_angle, EARTH_RADIUS)
 
     print 'spherical correction for %f is a: %f, b: %f, c: %f' % (checked_angle, result_a, result_b, result_c)
     print 'relative difference (a//b) is %f%%' % ((result_a - result_b) / ((result_a + result_b) * 2) * 100)
     print 'relative difference (a//c) is %f%%' % ((result_a - result_c) / ((result_a + result_c) * 2) * 100)
     print 'relative difference (b//c) is %f%%' % ((result_b - result_c) / ((result_b + result_c) * 2) * 100)
+
 
 if __name__ == '__main__':
     main()

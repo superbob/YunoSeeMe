@@ -1,37 +1,26 @@
-#!/usr/bin/env python
-
 """
-Script that generate a comparison of different profile graphs, based on `profiler.py` to get profile data.
-It generates 3 image files for each graph style:
+Plot styles available to draw from PNGProfileFormat
 
- * profile-detailed.png, from the generate_detailed_plot function: a detailed view of the profile
- * profile-curved-earth.png, from the generate_curved_earth_plot function: show the terrain with curvature
-        correction and a straight line of sight
- * profile-curved-sight.png, from the generate_curved_sight_plot function: show the terrain without curature
-        correction and a curved line of sight
+ * detailed_plot: a detailed view of the profile
+ * corrected_elevation: show the terrain with curvature correction and a straight line of sight
+ * curved_sight: show the terrain without curvature correction and a curved line of sight
 """
 
-# TODO these examples may not work anymore since changes in profiler.py, fix them
-
-import logging
-import sys
-import ConfigParser
-import os
-from osgeo import gdal
-from gdalconst import GA_ReadOnly
-import matplotlib.pyplot as plt
 import math
 
-import profiler
-
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-
-LOGGER = logging.getLogger(os.path.basename(__file__))
+import numpy as np
+import matplotlib.pyplot as plt
 
 
 def manual_linear_scaled_range(data):
-    data_min = min(data)
-    data_max = max(data)
+    """
+    Return the linear scaled limits (min and max) based on the log10 of the input data.
+
+    :param data: the data to look the scale for
+    :return: the min and max of the scale
+    """
+    data_min = np.amin(data)
+    data_max = np.amax(data)
 
     log_diff = math.log10(data_max - data_min)
     step = 10 ** math.floor(log_diff)
@@ -42,19 +31,20 @@ def manual_linear_scaled_range(data):
     return scaled_min, scaled_max
 
 
-def generate_detailed_plot(profile_data, filename):
+def detailed_plot(profile_data, filename, file_format='png'):
     # Prepare data
-    x = [data['distance'] / 1000 for data in profile_data]
-    y_elev = [data['elevation'] for data in profile_data]
-    y_elev_plus_correction = [data['elevation'] + data['overhead'] for data in profile_data]
-    y_sight = [data['sight'] for data in profile_data]
+    x = profile_data['distances'] / 1000  # pylint: disable=invalid-name
+    y_elev = profile_data['elevations']
+    y_elev_plus_correction = profile_data['elevations'] + profile_data['overheads']
+    y_sight = profile_data['sights']
 
-    y_min, y_max = manual_linear_scaled_range(y_elev_plus_correction)
-    floor = [y_min for i in x]
-    floor_plus_correction = [y_min + data['overhead'] for data in profile_data]
+    y_min, y_max = manual_linear_scaled_range(np.concatenate([y_elev_plus_correction, y_sight]))
+    floor = np.full_like(x, y_min)
+
+    floor_plus_correction = floor + profile_data['overheads']
 
     mid_x = x[int(len(x) / 2)]
-    max_correction = max([data['overhead'] for data in profile_data])
+    max_correction = max(profile_data['overheads'])
 
     # Prepare plot
     fig = plt.figure()
@@ -91,18 +81,26 @@ def generate_detailed_plot(profile_data, filename):
     # Format and save
     # setting dpi with figure.set_dpi() seem to be useless, the dpi really used is the one in savefig()
     fig.set_size_inches(10, 3.5)
-    fig.savefig(filename, bbox_inches='tight', dpi=80)
+    fig.savefig(filename, bbox_inches='tight', dpi=80, format=file_format)
 
 
-def generate_curved_earth_plot(profile_data, filename):
+def corrected_elevation(profile_data, filename, file_format='png'):
+    """
+    Generate a figure with the given profile data in the given filename.
+
+    :param profile_data: a dict object having 'distances', 'elevations', 'overheads' and 'sights' keys defined
+    each key is an array (or a numpy array) of the points
+    :param filename: a string or a fd to write the figure in
+    :param file_format: the format given to the Figure.savefig function, default is 'png'
+    """
     # Prepare data
-    x = [data['distance'] / 1000 for data in profile_data]
-    y_elev_plus_correction = [data['elevation'] + data['overhead'] for data in profile_data]
-    y_sight = [data['sight'] for data in profile_data]
+    x = profile_data['distances'] / 1000  # pylint: disable=invalid-name
+    y_elev_plus_correction = profile_data['elevations'] + profile_data['overheads']
+    y_sight = profile_data['sights']
 
-    y_min, y_max = manual_linear_scaled_range(y_elev_plus_correction)
-    floor = [y_min for i in x]
-    floor_plus_correction = [y_min + data['overhead'] for data in profile_data]
+    y_min, y_max = manual_linear_scaled_range(np.concatenate([y_elev_plus_correction, y_sight]))
+    floor = np.full_like(x, y_min)
+    floor_plus_correction = floor + profile_data['overheads']
 
     # Prepare plot
     fig = plt.figure()
@@ -134,17 +132,17 @@ def generate_curved_earth_plot(profile_data, filename):
     # Format and save
     # setting dpi with figure.set_dpi() seem to be useless, the dpi really used is the one in savefig()
     fig.set_size_inches(10, 3.5)
-    fig.savefig(filename, bbox_inches='tight', dpi=80)
+    fig.savefig(filename, bbox_inches='tight', dpi=80, format=file_format)
 
 
-def generate_curved_sight_plot(profile_data, filename):
+def curved_sight(profile_data, filename, file_format='png'):
     # Prepare data
-    x = [data['distance'] / 1000 for data in profile_data]
-    y_elev = [data['elevation'] for data in profile_data]
-    y_sight_minus_correction = [data['sight'] - data['overhead'] for data in profile_data]
+    x = profile_data['distances'] / 1000  # pylint: disable=invalid-name
+    y_elev = profile_data['elevations']
+    y_sight_minus_correction = profile_data['sights'] - profile_data['overheads']
 
-    y_min, y_max = manual_linear_scaled_range(y_elev)
-    floor = [y_min for i in x]
+    y_min, y_max = manual_linear_scaled_range(np.concatenate([y_elev, y_sight_minus_correction]))
+    floor = np.full_like(x, y_min)
 
     # Prepare plot
     fig = plt.figure()
@@ -176,44 +174,4 @@ def generate_curved_sight_plot(profile_data, filename):
     # Format and save
     # setting dpi with figure.set_dpi() seem to be useless, the dpi really used is the one in savefig()
     fig.set_size_inches(10, 3.5)
-    fig.savefig(filename, bbox_inches='tight', dpi=80)
-
-
-def main():
-    """Main entrypoint"""
-    config = ConfigParser.ConfigParser()
-    config.read('config.ini')
-    ds_filename = config.get('dem', 'location')
-
-    # data source file name
-    if len(sys.argv) >= 2:
-        ds_filename = sys.argv[1]  # ex: '/path/to/file/EUD_CP-DEMS_3500025000-AA.tif'
-
-    LOGGER.debug("using the following DEM: %s", ds_filename)
-
-    # 'GPS' coordinates of the first point
-    first_lat = 43.561725
-    first_long = 1.444796
-
-    # 'GPS' coordinates of the second point
-    second_lat = 43.671348
-    second_long = 1.225619
-
-    LOGGER.debug("requesting profile for the following 'GPS' coordinates")
-    LOGGER.debug("first wgs84 lat: %f, long: %f", first_lat, first_long)
-    LOGGER.debug("second wgs84 lat: %f, long: %f", second_lat, second_long)
-
-    # register all of the drivers
-    gdal.AllRegister()
-    # open the image
-    data_source = gdal.Open(ds_filename, GA_ReadOnly)
-
-    profile_data = profiler.profile(data_source, first_lat, first_long, second_lat, second_long)
-
-    generate_detailed_plot(profile_data, 'profile-detailed.png')
-    generate_curved_earth_plot(profile_data, 'profile-curved-earth.png')
-    generate_curved_sight_plot(profile_data, 'profile-curved-sight.png')
-
-
-if __name__ == '__main__':
-    main()
+    fig.savefig(filename, bbox_inches='tight', dpi=80, format=file_format)

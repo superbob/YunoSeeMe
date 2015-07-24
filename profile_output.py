@@ -1,8 +1,7 @@
 #!/usr/bin/env python
 
 """
-Program that output a profile in JSON raw data or graph in PNG,
-see `profile_graph_comparison.py` for other graph options.
+Program that output a profile in JSON raw data or plot in PNG, there are style options for the plot.
 This one uses the "profile-curved-earth.png from the generate_curved_earth_plot function"
 """
 
@@ -44,10 +43,12 @@ def parse_args():
                                help="second point line of sight offset from the ground level, ex: 10")
     offset2_group.add_argument('-os2', '--offset-sea2', type=float, metavar='OFF2',
                                help="second point line of sight offset from the sea level, ex: 200")
-    parser.add_argument('-of', '--output-format', choices=['json', 'png'], default='json')
+    parser.add_argument('-of', '--output-format', choices=['json', 'png'], default='json', help="output format")
     output_group = parser.add_mutually_exclusive_group()
-    output_group.add_argument('-f', '--filename')
-    output_group.add_argument('-s', '--stdout', action='store_true')
+    output_group.add_argument('-f', '--filename', help="file name")
+    output_group.add_argument('-s', '--stdout', action='store_true', help="redirect output to standard output")
+    parser.add_argument('-st', '--style', choices=['corrected_elevation', 'curved_sight', 'detailed'],
+                        default='corrected_elevation', help="plot style for png output format")
     return parser.parse_args()
 
 
@@ -88,7 +89,13 @@ def main():
     profile_data = profiler.profile(data_source, args.lat1, args.long1, args.lat2, args.long2, **kwargs)
 
     if args.output_format == 'png':
-        output_format = profile_format.PNG
+        if args.style == 'detailed':
+            output_format = profile_format.PNG_detailed
+        elif args.style == 'curved_sight':
+            output_format = profile_format.PNG_curved_sight
+        else:
+            output_format = profile_format.PNG
+
         default_filename = "profile.png"
     else:
         output_format = profile_format.JSON
