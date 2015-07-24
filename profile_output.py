@@ -23,19 +23,17 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(level
 LOGGER = logging.getLogger(os.path.basename(__file__))
 
 
-def main():
-    """Main entrypoint"""
-    config = ConfigParser.ConfigParser()
-    config.read('config.ini')
-    config_dem_location = config.get('dem', 'location')
-
+def parse_args():
+    """
+    Parses the command line arguments.
+    :return: the arguments Namespace object
+    """
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument('lat1', type=float, help="first point latitude, ex: 43.561725")
     parser.add_argument('long1', type=float, help="first point longitude, ex: 1.444796")
     parser.add_argument('lat2', type=float, help="second point latitude, ex: 43.671348")
     parser.add_argument('long2', type=float, help="second point longitude, ex: 1.225619")
-    parser.add_argument('-d', '--dem', help="DEM file location, ex: '/path/to/file/EUD_CP-DEMS_3500025000-AA.tif'",
-                        default=config_dem_location)
+    parser.add_argument('-d', '--dem', help="DEM file location, ex: '/path/to/file/EUD_CP-DEMS_3500025000-AA.tif'")
     offset1_group = parser.add_mutually_exclusive_group()
     offset1_group.add_argument('-og1', '--offset-ground1', type=float, metavar='OFF1',
                                help="first point line of sight offset from the ground level, ex: 6")
@@ -50,7 +48,16 @@ def main():
     output_group = parser.add_mutually_exclusive_group()
     output_group.add_argument('-f', '--filename')
     output_group.add_argument('-s', '--stdout', action='store_true')
-    args = parser.parse_args()
+    return parser.parse_args()
+
+
+def main():
+    """Main entrypoint"""
+    config = ConfigParser.ConfigParser()
+    config.read('config.ini')
+    config_dem_location = config.get('dem', 'location')
+
+    args = parse_args()
 
     kwargs = {}
     if args.offset_sea1 is not None:
@@ -75,7 +82,8 @@ def main():
     # register all of the drivers
     gdal.AllRegister()
     # open the DEM
-    data_source = gdal.Open(args.dem, GA_ReadOnly)
+    dem_location = args.dem or config_dem_location
+    data_source = gdal.Open(dem_location, GA_ReadOnly)
 
     profile_data = profiler.profile(data_source, args.lat1, args.long1, args.lat2, args.long2, **kwargs)
 

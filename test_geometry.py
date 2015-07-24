@@ -15,6 +15,12 @@ def test_half_central_angle():
     assert abs(expected - actual) <= EPSILON_L
 
 
+def test_central_angle():
+    expected = 0.003366084793899
+    actual = geometry.central_angle(0.76029552909832, 0.0252164472196439, 0.76220881138424, 0.0213910869250003)
+    assert abs(expected - actual) <= EPSILON_L
+
+
 def test_quadratic_mean():
     expected = 6367453.627
     actual = geometry.quadratic_mean(geometry.EQUATORIAL_RADIUS, geometry.POLAR_RADIUS)

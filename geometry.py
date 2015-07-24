@@ -7,7 +7,7 @@ import numpy as np
 
 def half_central_angle(rad_lat1, rad_long1, rad_lat2, rad_long2):
     """
-        Return the half of the central angle between the points specified by the given latitudes and longitudes.
+        Return half of the central angle between the points specified by the given latitudes and longitudes.
 
         It is based on the Haversine formula (https://en.wikipedia.org/wiki/Haversine_formula).
 
@@ -20,6 +20,21 @@ def half_central_angle(rad_lat1, rad_long1, rad_lat2, rad_long2):
     return np.arcsin(np.sqrt(
         np.sin((rad_lat2 - rad_lat1) / 2) ** 2
         + np.cos(rad_lat1) * np.cos(rad_lat2) * np.sin((rad_long2 - rad_long1) / 2) ** 2))
+
+
+def central_angle(rad_lat1, rad_long1, rad_lat2, rad_long2):
+    """
+        Return the central angle between the points specified by the given latitudes and longitudes.
+
+        It is based on the Haversine formula (https://en.wikipedia.org/wiki/Haversine_formula).
+
+        :param rad_lat1: the latitude of the first point in radians
+        :param rad_long1: the longitude of the first point in radians
+        :param rad_lat2: the latitude of the second point in radians
+        :param rad_long2: the longitude of the second point in radians
+        :return: the half of the great circle angle between the two points
+    """
+    return 2 * half_central_angle(rad_lat1, rad_long1, rad_lat2, rad_long2)
 
 
 def quadratic_mean(a, b):  # pylint: disable=invalid-name
