@@ -5,6 +5,8 @@ This is a collection of tools to compute elevation profiles between two points.
 
 It makes an extensive use of GDAL to handle DEM files to get elevation data from.
 
+![Build status](https://travis-ci.org/superbob/YunoSeeMe.svg?branch=master)
+
 Setup
 -----
 
@@ -104,9 +106,7 @@ Tests
 
 Tests use the following DEM: `_dem/N43E001.hgt` from SRTM.
 
-It can be downloaded from the following link: http://dds.cr.usgs.gov/srtm/version2_1/SRTM3/Eurasia/N43E001.hgt.zip
-
-Download, unzip and copy it to the `_dem` folder at the root of the project.
+It was downloaded from the following link: http://dds.cr.usgs.gov/srtm/version2_1/SRTM3/Eurasia/N43E001.hgt.zip
 
 It is also the default DEM when running the tools (specified in the `config.ini` file). It can be changed either in the config file or by command line.
 
