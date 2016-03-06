@@ -1,5 +1,4 @@
 _env/
-_dem/
 *.pyc
 .idea/
 .DS_Store
