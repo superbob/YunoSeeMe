@@ -5,7 +5,8 @@ This is a collection of tools to compute elevation profiles between two points.
 
 It makes an extensive use of GDAL to handle DEM files to get elevation data from.
 
-![Build status](https://travis-ci.org/superbob/YunoSeeMe.svg?branch=master)
+[![Build
+Status](https://travis-ci.org/superbob/YunoSeeMe.svg?branch=master)](https://travis-ci.org/superbob/YunoSeeMe)
 
 Setup
 -----
