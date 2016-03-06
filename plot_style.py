@@ -7,7 +7,8 @@ Plot styles available to draw from PNGProfileFormat
 """
 
 import math
-
+import matplotlib
+matplotlib.use('Agg')
 import numpy as np
 import matplotlib.pyplot as plt
 
