@@ -37,6 +37,17 @@ Look for the generated `profile.png` file
  * Browse to `http://localhost:8080/profile/json?lat1=lat1&long1=long1&lat2=lat2&long2=long2` for JSON
  * Browse to `http://localhost:8080/profile/png?lat1=lat1&long1=long1&lat2=lat2&long2=long2` for PNG
 
+Following parameters can be used : 
+
+* lat1: latitude of the first point
+* long1: longitude of the first point
+* lat2: latitude of the second point
+* long2: longitude of the second point
+* og1: line of sight offset (in meters) from the ground level of the first point
+* os1: line of sight offset (in meters) from the sea level of the first point
+* og2: line of sight offset (in meters) from the ground level of the second point
+* os2: line of sight offset (in meters) from the sea level of the second point
+
 Dependencies
 ------------
 
