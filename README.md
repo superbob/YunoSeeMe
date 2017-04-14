@@ -39,14 +39,14 @@ Look for the generated `profile.png` file
 
 Following parameters can be used : 
 
-* lat1: latitude of the first point
-* long1: longitude of the first point
-* lat2: latitude of the second point
-* long2: longitude of the second point
-* og1: line of sight offset (in meters) from the ground level of the first point
-* os1: line of sight offset (in meters) from the sea level of the first point
-* og2: line of sight offset (in meters) from the ground level of the second point
-* os2: line of sight offset (in meters) from the sea level of the second point
+ * lat1: latitude of the first point
+ * long1: longitude of the first point
+ * lat2: latitude of the second point
+ * long2: longitude of the second point
+ * og1: line of sight offset (in meters) from the ground level of the first point
+ * os1: line of sight offset (in meters) from the sea level of the first point
+ * og2: line of sight offset (in meters) from the ground level of the second point
+ * os2: line of sight offset (in meters) from the sea level of the second point
 
 Dependencies
 ------------
